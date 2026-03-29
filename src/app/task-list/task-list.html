@@ -1,0 +1,8 @@
+<div *ngFor="let task of tasks" class="task-card">
+  <h3>{{ task.title }}</h3>
+  <p>{{ task.description }}</p>
+
+  <span [ngClass]="getStatusClass(task.status)">
+    {{ task.status }}
+  </span>
+</div>
