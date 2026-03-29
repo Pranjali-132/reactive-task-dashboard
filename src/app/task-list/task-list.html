@@ -1,8 +1,71 @@
-<div *ngFor="let task of tasks" class="task-card">
+<div class="summary-container">
+  <div class="card">
+    <h3>Total Tasks</h3>
+    <p>{{ getTotalTasks() }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Completed</h3>
+    <p>{{ getCompletedTasks() }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Pending</h3>
+    <p>{{ getPendingTasks() }}</p>
+  </div>
+
+    <div class="card">
+    <h3>In Progress</h3>
+    <p>{{ getInProgressTasks() }}</p>
+  </div>
+</div>
+
+<div class="filter-container">
+
+  <input
+    type="text"
+    placeholder="Search tasks..."
+    [(ngModel)]="searchText"
+  />
+
+  <select id="statusFilter" [(ngModel)]="selectedStatus">
+    <option value="All">All</option>
+    <option value="Pending">Pending</option>
+    <option value="In Progress">In Progress</option>
+    <option value="Completed">Completed</option>
+  </select>
+
+</div>
+
+<!-- Task List -->
+<div *ngFor="let task of getFilteredTasks()" class="task-card">
   <h3>{{ task.title }}</h3>
   <p>{{ task.description }}</p>
-
   <span [ngClass]="getStatusClass(task.status)">
     {{ task.status }}
   </span>
+</div>
+
+<div class="form-container">
+
+  <input
+    type="text"
+    placeholder="Task Title"
+    [(ngModel)]="newTask.title"
+  />
+
+  <input
+    type="text"
+    placeholder="Task Description"
+    [(ngModel)]="newTask.description"
+  />
+
+  <select [(ngModel)]="newTask.status">
+    <option value="Pending">Pending</option>
+    <option value="In Progress">In Progress</option>
+    <option value="Completed">Completed</option>
+  </select>
+
+  <button (click)="addTask()">Add Task</button>
+
 </div>
