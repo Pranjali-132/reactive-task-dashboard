@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-task-list',
@@ -22,14 +23,25 @@ export class TaskList implements OnInit{
     description: '',
     status: 'Pending'
   };
+  editingTaskId: number | null = null;
+  currentUser: string = '';
 
-  ngOnInit(): void {
-    const savedTasks = localStorage.getItem('tasks');
+  constructor(private router: Router){}
+
+ngOnInit(): void {
+
+  const user = localStorage.getItem('user');
+
+  if (user) {
+    this.currentUser = user;
+
+    const savedTasks = localStorage.getItem(`tasks_${user}`);
 
     if (savedTasks) {
       this.tasks = JSON.parse(savedTasks);
-    }   
+    }
   }
+}
 
 getStatusClass(status: string): string {
   return status.toLowerCase().replace(/\s+/g, '-');
@@ -76,7 +88,7 @@ addTask() {
 
   this.tasks.push(task);
   //saving to localStorage
-  localStorage.setItem('tasks',JSON.stringify(this.tasks))
+  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
 
   // reset form
   this.newTask = {
@@ -86,4 +98,24 @@ addTask() {
   };
 }
 
+deleteTask(id: number) {
+  this.tasks = this.tasks.filter(task => task.id !== id);
+
+  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
+}
+
+editTask(id: number) {
+  this.editingTaskId = id;
+}
+
+saveTask() {
+  this.editingTaskId = null;
+
+  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
+}
+
+logout() {
+  localStorage.removeItem('user');
+  this.router.navigate(['/login']);
+}
 }

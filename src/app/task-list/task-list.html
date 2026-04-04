@@ -1,3 +1,15 @@
+<div class="container">
+
+<div class="navbar">
+  <h2>Task Dashboard</h2>
+
+  <div class="user-section">
+    <span>Welcome, {{ currentUser }}</span>
+    <button (click)="logout()">Logout</button>
+  </div>
+</div>
+
+
 <div class="summary-container">
   <div class="card">
     <h3>Total Tasks</h3>
@@ -39,11 +51,31 @@
 
 <!-- Task List -->
 <div *ngFor="let task of getFilteredTasks()" class="task-card">
-  <h3>{{ task.title }}</h3>
-  <p>{{ task.description }}</p>
-  <span [ngClass]="getStatusClass(task.status)">
-    {{ task.status }}
-  </span>
+
+  <div *ngIf="editingTaskId !== task.id">
+    <h3>{{ task.title }}</h3>
+    <p>{{ task.description }}</p>
+    <span [ngClass]="getStatusClass(task.status)">
+      {{ task.status }}
+    </span>
+
+    <button (click)="editTask(task.id)">Edit</button>
+    <button (click)="deleteTask(task.id)">Delete</button>
+  </div>
+
+  <div *ngIf="editingTaskId === task.id">
+    <input [(ngModel)]="task.title" />
+    <input [(ngModel)]="task.description" />
+
+    <select [(ngModel)]="task.status">
+      <option>Pending</option>
+      <option>In Progress</option>
+      <option>Completed</option>
+    </select>
+
+    <button (click)="saveTask()" >Save</button>
+  </div>
+
 </div>
 
 <div class="form-container">
@@ -68,4 +100,5 @@
 
   <button (click)="addTask()">Add Task</button>
 
+</div>
 </div>

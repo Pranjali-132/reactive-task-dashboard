@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { TaskList } from './task-list/task-list';
 @Component({
   selector: 'app-root',
-  imports:[TaskList],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
+  standalone:true
 })
 export class App {
-  protected title = 'reactive-task-dashboard';
+
 }
