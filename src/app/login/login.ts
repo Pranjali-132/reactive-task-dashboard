@@ -24,10 +24,10 @@ export class Login {
       }
     }
     
-    login() {
-    if (this.username) {
-      localStorage.setItem('user', this.username);
-      this.router.navigate(['/dashboard']);
-    }
-  }
+login() {
+  if (!this.username.trim()) return;
+
+  localStorage.setItem('user', this.username);
+  this.router.navigate(['/dashboard']);
+}
 }

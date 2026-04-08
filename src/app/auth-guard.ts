@@ -7,9 +7,9 @@ export const authGuard: CanActivateFn = () => {
 
   const user = localStorage.getItem('user');
 
-  // if (user) {
-  //   return true;
-  // } 
-  // return router.createUrlTree(['/login']);
-  return !!user;
+  if (user) {
+    return true;
+  } 
+  return router.createUrlTree(['/login']);
+
 };

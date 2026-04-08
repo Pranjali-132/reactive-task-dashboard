@@ -2,7 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { Tasks } from '../services/task';
+  interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+}
 @Component({
   selector: 'app-task-list',
   imports: [
@@ -15,7 +21,7 @@ import { Router } from '@angular/router';
 })
 export class TaskList implements OnInit{
 
-  tasks:any[] = [];
+  tasks:Task[] = [];
   searchText: string = '';
   selectedStatus: string = 'All';
   newTask = {
@@ -23,24 +29,20 @@ export class TaskList implements OnInit{
     description: '',
     status: 'Pending'
   };
-  editingTaskId: number | null = null;
+  editingTaskId: string | null = null;
   currentUser: string = '';
 
-  constructor(private router: Router){}
+  constructor(private router: Router, private taskService:Tasks){}
 
 ngOnInit(): void {
+  this.currentUser = localStorage.getItem('user') || '';
 
-  const user = localStorage.getItem('user');
+  console.log('CURRENT USER:', this.currentUser);
 
-  if (user) {
-    this.currentUser = user;
-
-    const savedTasks = localStorage.getItem(`tasks_${user}`);
-
-    if (savedTasks) {
-      this.tasks = JSON.parse(savedTasks);
-    }
-  }
+  this.taskService.getTasks(this.currentUser).subscribe(data => {
+    console.log('FILTERED DATA:', data);
+    this.tasks = data;
+  });
 }
 
 getStatusClass(status: string): string {
@@ -79,18 +81,36 @@ getFilteredTasks() {
 }
 
 addTask() {
+  console.log('ADD CLICKED');
+
+  // ✅ prevent empty title
+  if (!this.newTask.title.trim()) {
+    console.log('EMPTY TITLE BLOCKED');
+    return;
+  }
+
+  // ✅ prevent adding task without user
+  if (!this.currentUser) {
+    console.error('NO USER FOUND - TASK NOT ADDED');
+    return;
+  }
+
   const task = {
-    id: Date.now(),
-    title: this.newTask.title,
-    description: this.newTask.description,
-    status: this.newTask.status
+    title: this.newTask.title.trim(),
+    description: this.newTask.description.trim(),
+    status: this.newTask.status,
+    user: this.currentUser
   };
 
-  this.tasks.push(task);
-  //saving to localStorage
-  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
+  this.taskService.addTask(task)
+    .then(() => {
+      console.log('TASK ADDED SUCCESS');
+    })
+    .catch(err => {
+      console.error('ERROR ADDING TASK:', err);
+    });
 
-  // reset form
+  // ✅ reset form
   this.newTask = {
     title: '',
     description: '',
@@ -98,20 +118,17 @@ addTask() {
   };
 }
 
-deleteTask(id: number) {
-  this.tasks = this.tasks.filter(task => task.id !== id);
-
-  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
+deleteTask(id: string) {
+  this.taskService.deleteTask(id);
 }
 
-editTask(id: number) {
+editTask(id: string) {
   this.editingTaskId = id;
 }
 
-saveTask() {
+saveTask(task: any) {
+  this.taskService.updateTask(task.id, task);
   this.editingTaskId = null;
-
-  localStorage.setItem(`tasks_${this.currentUser}`, JSON.stringify(this.tasks));
 }
 
 logout() {
