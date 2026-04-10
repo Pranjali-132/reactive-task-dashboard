@@ -31,13 +31,13 @@ export class TaskList implements OnInit{
   };
   editingTaskId: string | null = null;
   currentUser: string = '';
+  currentName: string = '';
 
   constructor(private router: Router, private taskService:Tasks){}
 
 ngOnInit(): void {
   this.currentUser = localStorage.getItem('user') || '';
-
-  console.log('CURRENT USER:', this.currentUser);
+  this.currentName = localStorage.getItem('name') || '';
 
   this.taskService.getTasks(this.currentUser).subscribe(data => {
     console.log('FILTERED DATA:', data);
@@ -83,13 +83,13 @@ getFilteredTasks() {
 addTask() {
   console.log('ADD CLICKED');
 
-  // ✅ prevent empty title
+  // prevent empty title
   if (!this.newTask.title.trim()) {
     console.log('EMPTY TITLE BLOCKED');
     return;
   }
 
-  // ✅ prevent adding task without user
+  // prevent adding task without user
   if (!this.currentUser) {
     console.error('NO USER FOUND - TASK NOT ADDED');
     return;
@@ -110,7 +110,7 @@ addTask() {
       console.error('ERROR ADDING TASK:', err);
     });
 
-  // ✅ reset form
+  // reset form
   this.newTask = {
     title: '',
     description: '',

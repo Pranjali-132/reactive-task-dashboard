@@ -1,11 +1,67 @@
-<div class="login-container">
-  <h2>Login</h2>
+<div class="login-page">
+  <!-- Header -->
+  <header class="app-header">
+    <h1>Task Dashboard</h1>
+    <p>Track tasks, collaborate, and stay productive</p>
+  </header>
 
-  <input
-    type="text"
-    placeholder="Enter username"
-    [(ngModel)]="username"
-  />
+  <!-- Main Card -->
+  <div class="auth-card">
+    <div class="brand-section">
+      <h2>Welcome</h2>
+      <p>Login or create an account to continue</p>
+    </div>
 
-  <button (click)="login()">Login</button>
+    <!-- Tabs -->
+    <div class="tab-buttons">
+      <button
+        [class.active]="activeTab === 'login'"
+        (click)="activeTab = 'login'"
+      >
+        Login
+      </button>
+
+      <button
+        [class.active]="activeTab === 'register'"
+        (click)="activeTab = 'register'"
+      >
+        Register
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <div *ngIf="activeTab === 'login'" class="form-section">
+      <h3>Login</h3>
+
+      <input
+        type="text"
+        class="login-input"
+        placeholder="Enter username"
+        [(ngModel)]="username"
+      />
+
+      <button class="login-btn" (click)="login()">Login</button>
+    </div>
+
+    <!-- Register Form -->
+    <div *ngIf="activeTab === 'register'" class="form-section">
+      <h3>Create Account</h3>
+
+      <input
+        type="text"
+        class="login-input"
+        placeholder="Enter full name"
+        [(ngModel)]="name"
+      />
+
+      <input
+        type="text"
+        class="login-input"
+        placeholder="Choose username"
+        [(ngModel)]="username"
+      />
+
+      <button class="login-btn" (click)="register()">Register</button>
+    </div>
+  </div>
 </div>
