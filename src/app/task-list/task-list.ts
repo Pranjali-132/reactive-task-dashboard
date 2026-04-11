@@ -4,11 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Tasks } from '../services/task';
 import { ToastService } from '../services/toast-service';
-  interface Task {
+interface Task {
   id: string;
   title: string;
   description: string;
   status: string;
+  user: string;
+  teamId: string;
+  createdBy: string;
 }
 @Component({
   selector: 'app-task-list',
@@ -31,18 +34,20 @@ export class TaskList implements OnInit{
     status: 'Pending'
   };
   editingTaskId: string | null = null;
-  currentUser: string = '';
-  currentName: string = '';
+  currentUser: any = null;
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService){}
 
 ngOnInit(): void {
-  this.currentUser = localStorage.getItem('user') || '';
-  this.currentName = localStorage.getItem('name') || '';
+  this.currentUser = JSON.parse(localStorage.getItem('user')!);
 
   this.taskService.getTasks(this.currentUser).subscribe(data => {
     this.tasks = data;
   });
+}
+
+getUserName(): string {
+  return this.currentUser?.name || '';
 }
 
 getStatusClass(status: string): string {
@@ -89,7 +94,7 @@ addTask() {
   }
 
   // prevent adding task without user
-  if (!this.currentUser) {
+  if(!this.currentUser?.username) {
     this.toastService.show('no user found-task not added','error');
     return;
   }
@@ -98,7 +103,9 @@ addTask() {
     title: this.newTask.title.trim(),
     description: this.newTask.description.trim(),
     status: this.newTask.status,
-    user: this.currentUser
+    user: this.currentUser.username,
+    teamId: this.currentUser.teamId,
+    createdBy: this.currentUser.username
   };
 
   this.taskService.addTask(task)
@@ -135,4 +142,9 @@ logout() {
   localStorage.removeItem('user');
   this.router.navigate(['/login']);
 }
+
+isAdmin(): boolean {
+  return this.currentUser?.role === 'admin';
+}
+
 }

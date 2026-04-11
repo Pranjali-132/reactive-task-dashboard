@@ -30,7 +30,9 @@ async registerUser(user: any) {
 
   return addDoc(usersRef, {
     ...user,
-    username: normalizedUsername
+    username: normalizedUsername,
+    role: user.role || 'employee',
+    teamId: user.teamId || 'team-1'
   });
 }
 

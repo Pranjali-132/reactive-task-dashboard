@@ -11,5 +11,12 @@ export const routes: Routes = [
       import('./task-list/task-list').then(m => m.TaskList),
     canActivate: [authGuard]
   },
+  {
+  path: 'admin',
+  loadComponent: () =>
+    import('./task-list/task-list').then(m => m.TaskList),
+  canActivate: [authGuard],
+  data: { role: 'admin' }
+  },
   {path: '**',redirectTo: 'login'}
 ];

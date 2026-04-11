@@ -18,11 +18,18 @@ import { Observable } from 'rxjs';
 export class Tasks {
     constructor(private firestore: Firestore) {}
 
-getTasks(user: string): Observable<any[]> {
-  
+getTasks(currentUser: any): Observable<any[]> {
   const taskRef = collection(this.firestore, 'tasks');
 
-  const q = query(taskRef, where('user', '==', user));
+  let q;
+
+  if (currentUser.role === 'admin') {
+    // Admin → see all team tasks
+    q = query(taskRef, where('teamId', '==', currentUser.teamId));
+  } else {
+    // Employee → see only own tasks
+    q = query(taskRef, where('user', '==', currentUser.username));
+  }
 
   return collectionData(q, { idField: 'id' });
 }

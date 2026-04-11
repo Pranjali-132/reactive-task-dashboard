@@ -79,6 +79,22 @@
           />
         </div>
 
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select class="form-control" [(ngModel)]="role">
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Team</label>
+            <select class="form-control" [(ngModel)]="teamId">
+              <option value="team-1">Team 1</option>
+              <option value="team-2">Team 2</option>
+            </select>
+          </div>
+
         <button class="btn btn-success w-100" (click)="register()">
           Create Account
         </button>

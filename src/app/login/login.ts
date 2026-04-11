@@ -5,6 +5,12 @@ import { Router } from '@angular/router';
 import { UserService } from '../services/user'
 import { ToastService } from '../services/toast-service';
 
+interface User {
+  name: string;
+  username: string;
+  role: string;
+  teamId: string;
+}
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
@@ -16,6 +22,8 @@ export class Login implements OnInit {
   activeTab: string = 'login';
   username: string = '';
   name: string = '';
+  role: string = 'employee';
+  teamId: string = 'team-1';
 
   constructor(
     private router: Router,
@@ -38,13 +46,15 @@ async login() {
   if (!normalizedUsername) return;
 
   try {
-    const userData = await this.userService.loginUser(normalizedUsername);
-
-    localStorage.setItem('user', normalizedUsername);
-    localStorage.setItem('name', (userData as any).name);
-
+    const userData = await this.userService.loginUser(normalizedUsername) as User;
+    localStorage.setItem('user', JSON.stringify(userData));
     this.toastService.show('Login successful', 'success');
-    this.router.navigate(['/dashboard']);
+    if (userData.role === 'admin') {
+      this.router.navigate(['/admin']);
+    } 
+    else {
+      this.router.navigate(['/dashboard']);
+    }
   } catch (error: any) {
     this.toastService.show(error.message);
   }
@@ -60,7 +70,9 @@ async login() {
     try {
       await this.userService.registerUser({
         name: this.name.trim(),
-        username: this.username.trim().toLowerCase()
+        username: this.username.trim().toLowerCase(),
+        role: this.role,
+        teamId: this.teamId
       });
 
       this.toastService.show('Registration successful. Please login.');
