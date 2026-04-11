@@ -25,6 +25,7 @@ export class Login implements OnInit {
   role: string = 'employee';
   teams: any[] = [];
   teamName: string = '';
+  teamId: string = '';
   filteredTeams: any[] = [];
   showDropdown: boolean = false;
 
@@ -83,25 +84,24 @@ async login() {
       return;
     }
     // find if team exists
-    const normalize = (val: string) =>
-    val.trim().toLowerCase();
+    const normalize = (val: string) => val.trim().toLowerCase();
 
-    let selectedTeam = this.teams.find(
-      t => normalize(t.name) === normalize(this.teamName)
-    );
+    let teamIdToUse = this.teamId;
 
-    let teamIdToUse: string;
-
-    if (selectedTeam) {
-      // existing team
-      teamIdToUse = selectedTeam.id;
-    } else {
-      // create new team
-      const newTeam = await this.teamService.addTeam({
-        name: this.teamName.trim()
-      });
-
-      teamIdToUse = newTeam.id;
+    // If no team selected → check or create
+    if (!teamIdToUse) {
+      let selectedTeam = this.teams.find(
+        t => normalize(t.name) === normalize(this.teamName)
+      );
+      if (selectedTeam) {
+        teamIdToUse = selectedTeam.id;
+      } 
+      else {
+        const newTeam = await this.teamService.addTeam({
+          name: this.teamName.trim()
+        });
+        teamIdToUse = newTeam.id;
+      }
     }
 
     if (!this.teamName.trim()) {
@@ -130,4 +130,21 @@ async login() {
       this.toastService.show(error.message);
     }
   }
+
+  selectTeam(team: any) {
+    this.teamName = team.name;
+    this.teamId = team.id;   
+    this.showDropdown = false;
+  }
+
+  filterTeams() {
+    const search = this.teamName.toLowerCase();
+
+    this.filteredTeams = this.teams.filter(team =>
+      team.name.toLowerCase().includes(search)
+    );
+
+    this.teamId = '';
+  }
+
 }

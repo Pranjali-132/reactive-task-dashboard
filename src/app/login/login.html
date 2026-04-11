@@ -102,21 +102,31 @@
             </select>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Team</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Enter or select team"
-              [(ngModel)]="teamName"
-              (ngModelChange)="teamName = teamName.toLowerCase()"
-              list="teamList"
-            />
-
-            <datalist id="teamList">
-              <option *ngFor="let team of teams" [value]="team.name.toLowerCase()"></option>
-            </datalist>
+          <div class="mb-3 position-relative">
+          <label class="form-label">Team</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search or enter team"
+            [(ngModel)]="teamName"
+            (input)="filterTeams()"
+            (focus)="showDropdown = true"
+          />
+          <!--Dropdown -->
+          <ul *ngIf="showDropdown && filteredTeams.length > 0"
+              class="dropdown-menu show w-100">
+            <li *ngFor="let team of filteredTeams"
+                class="dropdown-item"
+                (click)="selectTeam(team)">
+                {{ team.name }}
+            </li>
+          </ul>
+          <!--No match message -->
+          <div *ngIf="showDropdown && filteredTeams.length === 0"
+              class="list-group w-100 mt-1 shadow">
+            No matching team — will be created
           </div>
+        </div>
 
         <button class="btn btn-success w-100" (click)="register()">
           Create Account
