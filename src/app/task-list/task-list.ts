@@ -121,7 +121,8 @@ editTask(id: string) {
 }
 
 saveTask(task: any) {
-  this.taskService.updateTask(task.id, task);
+  const { id, ...taskData } = task; //remove id
+  this.taskService.updateTask(id, taskData);
   this.editingTaskId = null;
 }
 
