@@ -1,59 +1,144 @@
-# ReactiveTaskDashboard
+# Reactive Task Dashboard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.5.
+A role-based task management web application built using Angular and Firebase, designed to help teams manage tasks efficiently with separate dashboards for Admin and Employee users.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Live Demo
 
-```bash
-ng serve
+[https://eloquent-chaja-a1eff7.netlify.app/login](https://eloquent-chaja-a1eff7.netlify.app/login)
+
+---
+
+## 📌 Project Overview
+
+Reactive Task Dashboard is a single-page application that demonstrates role-based access control (RBAC) using Angular and Firebase. It allows users to register and log in using a unique username and assigned role, and provides different permissions for Admin and Employee users.
+
+The system focuses on task management within teams, where users can create, update, and delete tasks based on their assigned role and ownership.
+
+---
+
+## 🎯 Key Features
+
+### 🔐 Authentication System
+
+* Username-based registration and login
+* Role selection during registration (Admin / Employee)
+* User profile stored in Firebase Firestore
+* Session-based access control
+
+### 👥 Role-Based Access Control (RBAC)
+
+* Admin dashboard for team-level task management
+* Employee dashboard for personal task management
+* Route protection using Angular Guards
+* Access restriction based on assigned role
+
+### 📝 Task Management
+
+* Create new tasks
+* Edit existing tasks
+* Delete tasks
+* Task ownership enforcement (users can manage only their own tasks)
+* Admin can manage tasks within their assigned team scope
+
+### 🧭 Navigation & Guards
+
+* Auth guards for protected routes
+* Role-based route access control
+* Prevent unauthorized dashboard access
+
+### 🧱 Application Structure
+
+* Modular Angular architecture
+* Separation of concerns using Services
+* Pipes for UI data transformation
+* Clean component-based UI design
+
+---
+
+## 🏗️ Tech Stack
+
+* Frontend: Angular
+* Backend: Firebase (Firestore)
+* Authentication: Custom username-based system (Firestore-backed)
+* Hosting: Netlify
+* Styling: CSS / Bootstrap
+
+---
+
+## 📁 Project Architecture
+
+```
+App
+ ├── Components
+ │    ├── Login / Register
+ │    ├── Admin Dashboard
+ │    ├── Employee Dashboard
+ │    └── Task Components
+ │
+ ├── Services
+ │    └── Task Service (CRUD operations)
+ │
+ ├── Guards
+ │    ├── Auth Guard
+ │    └── Role Guard
+ │
+ ├── Pipes
+ │    └── Data transformation utilities
+ │
+ └── Firebase Integration
+      ├── Firestore (tasks + users + teams)
+      └── Custom authentication logic
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 🔄 Application Flow
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. User registers with username and selects role
+2. User data is stored in Firestore
+3. User logs in using username
+4. Role is validated and stored in session
+5. Route guards control dashboard access
+6. Users interact with task system based on permissions
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🔐 Security Model
 
-```bash
-ng generate --help
-```
+* Route-level protection using Angular Guards
+* Role-based access enforced at UI and routing level
+* Task ownership validation before edit/delete operations
+* Firebase Firestore used as backend data store
 
-## Building
+---
 
-To build the project run:
+## ⚠️ Design Notes
 
-```bash
-ng build
-```
+* Authentication is implemented using a custom username-based system (not email/password authentication)
+* Role assignment is performed at registration and used for access control
+* Firebase Firestore is used for persistent storage of users and tasks
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 📈 Future Improvements
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+* Firebase Email/Password authentication integration
+* Enhanced Firestore security rules
+* Audit logs for task updates
+* Real-time collaboration features
+* Advanced filtering and search
+* Pagination for large task sets
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
+## 👨‍💻 Author
 
-For end-to-end (e2e) testing, run:
+Developed by: Pranjali Sahu
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🏁 Summary
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project demonstrates a role-based task management system built with Angular and Firebase, focusing on modular architecture, route protection, and task-level permissions in a multi-user
