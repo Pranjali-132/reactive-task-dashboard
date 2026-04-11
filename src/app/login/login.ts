@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user'
+import { ToastService } from '../services/toast-service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,8 @@ export class Login implements OnInit {
 
   constructor(
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -41,17 +43,17 @@ async login() {
     localStorage.setItem('user', normalizedUsername);
     localStorage.setItem('name', (userData as any).name);
 
-    alert('Login successful');
+    this.toastService.show('Login successful', 'success');
     this.router.navigate(['/dashboard']);
   } catch (error: any) {
-    alert(error.message);
+    this.toastService.show(error.message);
   }
 }
 
   // Register new user
   async register() {
     if (!this.name.trim() || !this.username.trim()) {
-      alert('Please fill all fields');
+      this.toastService.show('Please fill all fields');
       return;
     }
 
@@ -61,7 +63,7 @@ async login() {
         username: this.username.trim().toLowerCase()
       });
 
-      alert('Registration successful. Please login.');
+      this.toastService.show('Registration successful. Please login.');
 
       // clear fields
       this.name = '';
@@ -71,7 +73,7 @@ async login() {
       this.activeTab = 'login';
 
     } catch (error: any) {
-      alert(error.message);
+      this.toastService.show(error.message);
     }
   }
 }

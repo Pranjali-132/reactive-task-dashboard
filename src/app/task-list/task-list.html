@@ -1,104 +1,172 @@
-<div class="container">
+<div class="container-fluid p-3">
 
-<div class="navbar">
-  <h2>Task Dashboard</h2>
+  <!-- 🔹 NAVBAR -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Task Dashboard</h2>
 
-  <div class="user-section">
-    <span>Welcome, {{ currentName }}</span>
-    <button (click)="logout()">Logout</button>
-  </div>
-</div>
-
-
-<div class="summary-container">
-  <div class="card">
-    <h3>Total Tasks</h3>
-    <p>{{ getTotalTasks() }}</p>
+    <div>
+      <span class="me-3">Welcome, <strong>{{ currentName }}</strong></span>
+      <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Completed</h3>
-    <p>{{ getCompletedTasks() }}</p>
+  <!-- 🔹 SUMMARY CARDS -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h6>Total Tasks</h6>
+          <h4>{{ getTotalTasks() }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-success">
+        <div class="card-body">
+          <h6>Completed</h6>
+          <h4 class="text-success">{{ getCompletedTasks() }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-warning">
+        <div class="card-body">
+          <h6>Pending</h6>
+          <h4 class="text-warning">{{ getPendingTasks() }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card text-center shadow-sm border-info">
+        <div class="card-body">
+          <h6>In Progress</h6>
+          <h4 class="text-info">{{ getInProgressTasks() }}</h4>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Pending</h3>
-    <p>{{ getPendingTasks() }}</p>
+  <!-- 🔹 FILTER -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-2">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search tasks..."
+        [(ngModel)]="searchText"
+      />
+    </div>
+
+    <div class="col-md-3 mb-2">
+      <select class="form-select" [(ngModel)]="selectedStatus">
+        <option value="All">All</option>
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
   </div>
 
-    <div class="card">
-    <h3>In Progress</h3>
-    <p>{{ getInProgressTasks() }}</p>
+  <!-- 🔹 TASK LIST -->
+  <div class="row">
+    <div class="col-md-4 mb-3" *ngFor="let task of getFilteredTasks()">
+
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+
+          <!-- VIEW MODE -->
+          <div *ngIf="editingTaskId !== task.id">
+            <h5 class="card-title">{{ task.title }}</h5>
+            <p class="card-text text-muted">{{ task.description }}</p>
+
+            <span class="badge"
+              [ngClass]="{
+                'bg-success': task.status === 'Completed',
+                'bg-warning': task.status === 'Pending',
+                'bg-info': task.status === 'In Progress'
+              }">
+              {{ task.status }}
+            </span>
+
+            <div class="mt-3">
+              <button class="btn btn-outline-primary btn-sm me-2"
+                      (click)="editTask(task.id)">
+                Edit
+              </button>
+
+              <button class="btn btn-outline-danger btn-sm"
+                      (click)="deleteTask(task.id)">
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <!-- EDIT MODE -->
+          <div *ngIf="editingTaskId === task.id">
+            <input class="form-control mb-2" [(ngModel)]="task.title" />
+            <input class="form-control mb-2" [(ngModel)]="task.description" />
+
+            <select class="form-select mb-2" [(ngModel)]="task.status">
+              <option>Pending</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+
+            <button class="btn btn-success btn-sm"
+                    (click)="saveTask(task)">
+              Save
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
 
-<div class="filter-container">
+  <!-- 🔹 ADD TASK FORM -->
+  <div class="card mt-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Add Task</h5>
 
-  <input
-    type="text"
-    placeholder="Search tasks..."
-    [(ngModel)]="searchText"
-  />
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Task Title"
+            [(ngModel)]="newTask.title"
+            required
+          />
+        </div>
 
-  <select id="statusFilter" [(ngModel)]="selectedStatus">
-    <option value="All">All</option>
-    <option value="Pending">Pending</option>
-    <option value="In Progress">In Progress</option>
-    <option value="Completed">Completed</option>
-  </select>
+        <div class="col-md-4 mb-2">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Task Description"
+            [(ngModel)]="newTask.description"
+          />
+        </div>
 
-</div>
+        <div class="col-md-2 mb-2">
+          <select class="form-select" [(ngModel)]="newTask.status">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
 
-<!-- Task List -->
-<div *ngFor="let task of getFilteredTasks()" class="task-card">
-
-  <div *ngIf="editingTaskId !== task.id">
-    <h3>{{ task.title }}</h3>
-    <p>{{ task.description }}</p>
-    <span [ngClass]="getStatusClass(task.status)">
-      {{ task.status }}
-    </span>
-
-    <button (click)="editTask(task.id)">Edit</button>
-    <button (click)="deleteTask(task.id)">Delete</button>
+        <div class="col-md-2 mb-2">
+          <button class="btn btn-primary w-100" (click)="addTask()">
+            Add Task
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="editingTaskId === task.id">
-    <input [(ngModel)]="task.title" />
-    <input [(ngModel)]="task.description" />
-
-    <select [(ngModel)]="task.status">
-      <option>Pending</option>
-      <option>In Progress</option>
-      <option>Completed</option>
-    </select>
-
-    <button (click)="saveTask(task)" >Save</button>
-  </div>
-
-</div>
-
-<div class="form-container">
-
-  <input
-    type="text"
-    placeholder="Task Title"
-    [(ngModel)]="newTask.title"
-  />
-
-  <input
-    type="text"
-    placeholder="Task Description"
-    [(ngModel)]="newTask.description"
-  />
-
-  <select [(ngModel)]="newTask.status">
-    <option value="Pending">Pending</option>
-    <option value="In Progress">In Progress</option>
-    <option value="Completed">Completed</option>
-  </select>
-
-  <button (click)="addTask()">Add Task</button>
-
-</div>
 </div>

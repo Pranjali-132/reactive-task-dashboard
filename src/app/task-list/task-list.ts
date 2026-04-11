@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Tasks } from '../services/task';
+import { ToastService } from '../services/toast-service';
   interface Task {
   id: string;
   title: string;
@@ -33,14 +34,13 @@ export class TaskList implements OnInit{
   currentUser: string = '';
   currentName: string = '';
 
-  constructor(private router: Router, private taskService:Tasks){}
+  constructor(private router: Router, private taskService:Tasks, private toastService: ToastService){}
 
 ngOnInit(): void {
   this.currentUser = localStorage.getItem('user') || '';
   this.currentName = localStorage.getItem('name') || '';
 
   this.taskService.getTasks(this.currentUser).subscribe(data => {
-    console.log('FILTERED DATA:', data);
     this.tasks = data;
   });
 }
@@ -81,17 +81,16 @@ getFilteredTasks() {
 }
 
 addTask() {
-  console.log('ADD CLICKED');
 
   // prevent empty title
   if (!this.newTask.title.trim()) {
-    console.log('EMPTY TITLE BLOCKED');
+    this.toastService.show('Please enter a Title','error');
     return;
   }
 
   // prevent adding task without user
   if (!this.currentUser) {
-    console.error('NO USER FOUND - TASK NOT ADDED');
+    this.toastService.show('no user found-task not added','error');
     return;
   }
 
@@ -104,10 +103,10 @@ addTask() {
 
   this.taskService.addTask(task)
     .then(() => {
-      console.log('TASK ADDED SUCCESS');
+      this.toastService.show('Task added successfully', 'success');
     })
     .catch(err => {
-      console.error('ERROR ADDING TASK:', err);
+      this.toastService.show('ERROR ADDING TASK:', err);
     });
 
   // reset form
@@ -120,6 +119,7 @@ addTask() {
 
 deleteTask(id: string) {
   this.taskService.deleteTask(id);
+  this.toastService.show('Task is successfully deleted', 'info');
 }
 
 editTask(id: string) {

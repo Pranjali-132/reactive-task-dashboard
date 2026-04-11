@@ -1,0 +1,8 @@
+.toast {
+  min-width: 250px;
+  border-radius: 10px;
+  opacity: 0.95;
+}
+.toast-container {
+  z-index: 1055; 
+}

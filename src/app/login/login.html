@@ -1,67 +1,89 @@
 <div class="login-page">
-  <!-- Header -->
-  <header class="app-header">
-    <h1>Task Dashboard</h1>
-    <p>Track tasks, collaborate, and stay productive</p>
+
+  <!-- 🔹 HEADER -->
+  <header class="app-header text-center text-white mb-4">
+    <h1 class="fw-bold">Task Dashboard</h1>
+    <p class="opacity-75">Track tasks, collaborate, and stay productive</p>
   </header>
 
-  <!-- Main Card -->
-  <div class="auth-card">
-    <div class="brand-section">
-      <h2>Welcome</h2>
-      <p>Login or create an account to continue</p>
-    </div>
+  <!-- 🔹 CARD -->
+  <div class="auth-card card shadow-lg border-0">
 
-    <!-- Tabs -->
-    <div class="tab-buttons">
-      <button
-        [class.active]="activeTab === 'login'"
-        (click)="activeTab = 'login'"
-      >
-        Login
-      </button>
+    <div class="card-body p-4">
 
-      <button
-        [class.active]="activeTab === 'register'"
-        (click)="activeTab = 'register'"
-      >
-        Register
-      </button>
-    </div>
+      <!-- Branding -->
+      <div class="text-center mb-4">
+        <h4 class="fw-semibold">Welcome 👋</h4>
+        <p class="text-muted mb-0">Login or create an account</p>
+      </div>
 
-    <!-- Login Form -->
-    <div *ngIf="activeTab === 'login'" class="form-section">
-      <h3>Login</h3>
+      <!-- 🔹 TABS -->
+      <ul class="nav nav-pills nav-justified mb-4">
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            [class.active]="activeTab === 'login'"
+            (click)="activeTab = 'login'">
+            Login
+          </button>
+        </li>
 
-      <input
-        type="text"
-        class="login-input"
-        placeholder="Enter username"
-        [(ngModel)]="username"
-      />
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            [class.active]="activeTab === 'register'"
+            (click)="activeTab = 'register'">
+            Register
+          </button>
+        </li>
+      </ul>
 
-      <button class="login-btn" (click)="login()">Login</button>
-    </div>
+      <!-- 🔹 LOGIN -->
+      <div *ngIf="activeTab === 'login'">
 
-    <!-- Register Form -->
-    <div *ngIf="activeTab === 'register'" class="form-section">
-      <h3>Create Account</h3>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter username"
+            [(ngModel)]="username"
+          />
+        </div>
 
-      <input
-        type="text"
-        class="login-input"
-        placeholder="Enter full name"
-        [(ngModel)]="name"
-      />
+        <button class="btn btn-primary w-100" (click)="login()">
+          Login
+        </button>
+      </div>
 
-      <input
-        type="text"
-        class="login-input"
-        placeholder="Choose username"
-        [(ngModel)]="username"
-      />
+      <!-- 🔹 REGISTER -->
+      <div *ngIf="activeTab === 'register'">
 
-      <button class="login-btn" (click)="register()">Register</button>
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter full name"
+            [(ngModel)]="name"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Choose username"
+            [(ngModel)]="username"
+          />
+        </div>
+
+        <button class="btn btn-success w-100" (click)="register()">
+          Create Account
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
