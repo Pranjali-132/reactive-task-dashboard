@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user'
 import { ToastService } from '../services/toast-service';
-
+import { TeamService } from '../services/team';
 interface User {
   name: string;
   username: string;
@@ -23,12 +23,16 @@ export class Login implements OnInit {
   username: string = '';
   name: string = '';
   role: string = 'employee';
-  teamId: string = 'team-1';
+  teams: any[] = [];
+  teamName: string = '';
+  filteredTeams: any[] = [];
+  showDropdown: boolean = false;
 
   constructor(
     private router: Router,
     private userService: UserService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private teamService:  TeamService
   ) {}
 
   ngOnInit() {
@@ -37,6 +41,7 @@ export class Login implements OnInit {
     if (user) {
       this.router.navigate(['/dashboard']);
     }
+    this.teamService.getTeams().subscribe(data => {console.log('Teams:', data);this.teams = data;});
   }
 
   // Login existing user
@@ -47,14 +52,25 @@ async login() {
 
   try {
     const userData = await this.userService.loginUser(normalizedUsername) as User;
+
+    //role validation
+    if (userData.role !== this.role) {
+      this.toastService.show(`You are not registered as ${this.role}`, 'error');
+      return;
+    }
+
+    // store user
     localStorage.setItem('user', JSON.stringify(userData));
+
     this.toastService.show('Login successful', 'success');
+
+    // role-based navigation
     if (userData.role === 'admin') {
       this.router.navigate(['/admin']);
-    } 
-    else {
+    } else {
       this.router.navigate(['/dashboard']);
     }
+
   } catch (error: any) {
     this.toastService.show(error.message);
   }
@@ -66,13 +82,39 @@ async login() {
       this.toastService.show('Please fill all fields');
       return;
     }
+    // find if team exists
+    const normalize = (val: string) =>
+    val.trim().toLowerCase();
+
+    let selectedTeam = this.teams.find(
+      t => normalize(t.name) === normalize(this.teamName)
+    );
+
+    let teamIdToUse: string;
+
+    if (selectedTeam) {
+      // existing team
+      teamIdToUse = selectedTeam.id;
+    } else {
+      // create new team
+      const newTeam = await this.teamService.addTeam({
+        name: this.teamName.trim()
+      });
+
+      teamIdToUse = newTeam.id;
+    }
+
+    if (!this.teamName.trim()) {
+      this.toastService.show('Please enter a team');
+      return;
+    }
 
     try {
       await this.userService.registerUser({
         name: this.name.trim(),
         username: this.username.trim().toLowerCase(),
         role: this.role,
-        teamId: this.teamId
+        teamId: teamIdToUse
       });
 
       this.toastService.show('Registration successful. Please login.');

@@ -6,7 +6,12 @@
     <h2 *ngIf="isAdmin()">Team Tasks</h2>
 
     <div>
-      <span class="me-3">Welcome, <strong>{{ getUserName() }}</strong></span>
+      <span class="me-3">
+        Welcome, <strong>{{ getUserName() }}</strong>
+        <span class="badge bg-secondary ms-2 text-uppercase">
+          {{ currentUser?.role }}
+        </span>
+      </span>
       <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
     </div>
   </div>
@@ -73,7 +78,7 @@
 
   <!-- 🔹 TASK LIST -->
   <div class="row">
-    <div class="col-md-4 mb-3" *ngFor="let task of getFilteredTasks()">
+    <div class="col-md-4 mb-3" *ngFor="let task of tasks | taskFilter:searchText:selectedStatus">
 
       <div class="card shadow-sm h-100">
         <div class="card-body">
@@ -129,6 +134,11 @@
         </div>
       </div>
 
+    </div>
+
+    <div *ngIf="(tasks | taskFilter:searchText:selectedStatus).length === 0" class="text-center text-muted mt-5">
+      <h5>No tasks found</h5>
+      <p>Add a new task or change filters</p>
     </div>
   </div>
 

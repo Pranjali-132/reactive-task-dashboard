@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Tasks } from '../services/task';
 import { ToastService } from '../services/toast-service';
+import { TaskFilterPipe } from '../pipes/task-filter.pipe.ts-pipe';
 interface Task {
   id: string;
   title: string;
@@ -17,7 +18,8 @@ interface Task {
   selector: 'app-task-list',
   imports: [
     CommonModule,
-    FormsModule 
+    FormsModule,
+    TaskFilterPipe
   ],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css',
@@ -68,21 +70,6 @@ getPendingTasks() {
 
 getInProgressTasks() {
   return this.tasks.filter(t => t.status === 'In Progress').length;
-}
-
-getFilteredTasks() {
-  return this.tasks.filter(task => {
-
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(this.searchText.toLowerCase());
-
-    const matchesStatus =
-      this.selectedStatus === 'All' ||
-      task.status === this.selectedStatus;
-
-    return matchesSearch && matchesStatus;
-  });
 }
 
 addTask() {

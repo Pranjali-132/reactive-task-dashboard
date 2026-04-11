@@ -5,8 +5,21 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  padding: 20px;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+  background-size: 400% 400%;
+  animation: gradientMove 10s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Header */
@@ -23,6 +36,8 @@
   width: 100%;
   max-width: 420px;
   border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
 }
 
 /* Tabs */

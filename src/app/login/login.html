@@ -2,8 +2,15 @@
 
   <!-- 🔹 HEADER -->
   <header class="app-header text-center text-white mb-4">
-    <h1 class="fw-bold">Task Dashboard</h1>
-    <p class="opacity-75">Track tasks, collaborate, and stay productive</p>
+    <h1 class="fw-bold display-5">Task Dashboard</h1>
+
+    <p class="opacity-75 mb-1">
+      Manage tasks smarter with role-based access
+    </p>
+
+    <p class="small opacity-50">
+      Admins monitor teams • Employees track their own work • Real-time updates
+    </p>
   </header>
 
   <!-- 🔹 CARD -->
@@ -40,6 +47,14 @@
 
       <!-- 🔹 LOGIN -->
       <div *ngIf="activeTab === 'login'">
+
+        <div class="mb-3">
+          <label class="form-label">Login as an</label>
+          <select class="form-control" [(ngModel)]="role">
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
 
         <div class="mb-3">
           <label class="form-label">Username</label>
@@ -89,10 +104,18 @@
 
           <div class="mb-3">
             <label class="form-label">Team</label>
-            <select class="form-control" [(ngModel)]="teamId">
-              <option value="team-1">Team 1</option>
-              <option value="team-2">Team 2</option>
-            </select>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter or select team"
+              [(ngModel)]="teamName"
+              (ngModelChange)="teamName = teamName.toLowerCase()"
+              list="teamList"
+            />
+
+            <datalist id="teamList">
+              <option *ngFor="let team of teams" [value]="team.name.toLowerCase()"></option>
+            </datalist>
           </div>
 
         <button class="btn btn-success w-100" (click)="register()">
