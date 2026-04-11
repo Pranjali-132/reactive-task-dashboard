@@ -49,4 +49,18 @@ async registerUser(user: any) {
 
     return userSnapshot.docs[0].data();
   }
+
+  async getUserByUsername(username: string) {
+  const usersRef = collection(this.firestore, 'users');
+  const q = query(usersRef, where('username', '==', username));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    throw new Error('User not found');
+  }
+  const docData = snapshot.docs[0].data();
+  return {
+    id: snapshot.docs[0].id,
+    ...docData
+  };
+}
 }

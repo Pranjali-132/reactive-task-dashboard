@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Tasks } from '../services/task';
 import { ToastService } from '../services/toast-service';
 import { TaskFilterPipe } from '../pipes/task-filter.pipe.ts-pipe';
+import { UserService } from '../services/user';
 interface Task {
   id: string;
   title: string;
@@ -38,14 +39,22 @@ export class TaskList implements OnInit{
   editingTaskId: string | null = null;
   currentUser: any = null;
 
-  constructor(private router: Router, private taskService:Tasks, private toastService: ToastService){}
+  constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
 ngOnInit(): void {
-  this.currentUser = JSON.parse(localStorage.getItem('user')!);
+    const localUser = JSON.parse(localStorage.getItem('user')!);
+    this.currentUser = localUser;
 
-  this.taskService.getTasks(this.currentUser).subscribe(data => {
-    this.tasks = data;
-  });
+    // fetch fresh data from firebase
+    this.userService.getUserByUsername(localUser.username)
+      .then(freshUser => {
+        this.currentUser = freshUser;
+        localStorage.setItem('user', JSON.stringify(freshUser));
+    });
+
+    this.taskService.getTasks(this.currentUser).subscribe(data => {
+      this.tasks = data;
+    });
 }
 
 getUserName(): string {
