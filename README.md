@@ -1,4 +1,4 @@
-# Reactive Task Dashboard
+# Task Dashboard
 
 A role-based task management web application built using Angular and Firebase, designed to help teams manage tasks efficiently with separate dashboards for Admin and Employee users.
 
