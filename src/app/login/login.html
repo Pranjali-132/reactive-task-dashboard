@@ -1,137 +1,129 @@
 <div class="login-page">
-    <div class="left-section">
-      <div class="left-content">
-        <h1 class="fw-bold display-5">Work Smarter, Together</h1>
-        <p class="opacity-75 mb-1">
-          Manage tasks with clarity and control
-        </p>
-        <p class="small opacity-50">
-          Role-based access • Team visibility • Real-time updates
-        </p>
-      </div>
+
+  <!-- LEFT CONTENT -->
+  <div class="left-content">
+
+    <!-- BRAND -->
+    <div class="brand">
+      <div class="logo-text">TaskNova</div>
     </div>
 
-    <div class="right-section">
-      <div class="auth-card card shadow-lg border-0">
+    <h4 style="margin-bottom: 20px;">Work Smarter, Together</h4>
 
-        <div class="card-body p-4">
+    <p class="subtitle">
+      Manage tasks with clarity and control<br>
+      Role-based access • Team visibility • Real-time updates
+    </p>
 
-          <!-- Branding -->
-          <div class="text-center mb-4">
-            <h4 class="fw-semibold">Welcome 👋</h4>
-            <p class="text-muted mb-0">Login or create an account</p>
-          </div>
+  </div>
 
-          <!-- 🔹 TABS -->
-          <ul class="nav nav-pills nav-justified mb-4">
-            <li class="nav-item">
-              <button
-                class="nav-link"
-                [class.active]="activeTab === 'login'"
-                (click)="activeTab = 'login'">
-                Login
-              </button>
-            </li>
+  <!-- RIGHT CARD -->
+  <div class="auth-card card border-0">
+    <div class="card-body p-4">
 
-            <li class="nav-item">
-              <button
-                class="nav-link"
-                [class.active]="activeTab === 'register'"
-                (click)="activeTab = 'register'">
-                Register
-              </button>
+      <div class="text-center mb-4">
+        <h4 class="fw-semibold">Welcome 👋</h4>
+        <p class="text-muted mb-0">Login or create an account</p>
+      </div>
+
+      <!-- TABS -->
+      <ul class="nav nav-pills nav-justified mb-4">
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="activeTab === 'login'"
+                  (click)="activeTab = 'login'">
+            Login
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button class="nav-link"
+                  [class.active]="activeTab === 'register'"
+                  (click)="activeTab = 'register'">
+            Register
+          </button>
+        </li>
+      </ul>
+
+      <!-- LOGIN -->
+      <div *ngIf="activeTab === 'login'">
+
+        <div class="mb-3">
+          <label class="form-label">Login as</label>
+          <select class="form-control" [(ngModel)]="role">
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control"
+                 placeholder="Enter username"
+                 [(ngModel)]="username" />
+        </div>
+
+        <button class="btn btn-primary w-100" (click)="login()">
+          Login
+        </button>
+      </div>
+
+      <!-- REGISTER -->
+      <div *ngIf="activeTab === 'register'">
+
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control"
+                 placeholder="Enter full name"
+                 [(ngModel)]="name" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control"
+                 placeholder="Choose username"
+                 [(ngModel)]="username" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select class="form-control" [(ngModel)]="role">
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <!-- TEAM INPUT -->
+        <div class="mb-3 position-relative">
+          <label class="form-label">Team</label>
+          <input type="text"
+                 class="form-control"
+                 placeholder="Search or enter team"
+                 [(ngModel)]="teamName"
+                 (input)="filterTeams()"
+                 (focus)="showDropdown = true" />
+
+          <ul *ngIf="showDropdown && filteredTeams.length > 0"
+              class="dropdown-menu show w-100">
+            <li *ngFor="let team of filteredTeams"
+                class="dropdown-item"
+                (click)="selectTeam(team)">
+              {{ team.name }}
             </li>
           </ul>
 
-          <!-- 🔹 LOGIN -->
-          <div *ngIf="activeTab === 'login'">
-
-            <div class="mb-3">
-              <label class="form-label">Login as an</label>
-              <select class="form-control" [(ngModel)]="role">
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Enter username"
-                [(ngModel)]="username"
-              />
-            </div>
-
-            <button class="btn btn-primary w-100" (click)="login()">
-              Login
-            </button>
+          <div *ngIf="showDropdown && filteredTeams.length === 0"
+               class="list-group w-100 mt-1 shadow">
+            No matching team — will be created
           </div>
-
-          <!-- 🔹 REGISTER -->
-          <div *ngIf="activeTab === 'register'">
-
-            <div class="mb-3">
-              <label class="form-label">Full Name</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Enter full name"
-                [(ngModel)]="name"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Choose username"
-                [(ngModel)]="username"
-              />
-            </div>
-
-              <div class="mb-3">
-                <label class="form-label">Role</label>
-                <select class="form-control" [(ngModel)]="role">
-                  <option value="employee">Employee</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div class="mb-3 position-relative">
-              <label class="form-label">Team</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search or enter team"
-                [(ngModel)]="teamName"
-                (input)="filterTeams()"
-                (focus)="showDropdown = true"
-              />
-              <!--Dropdown -->
-              <ul *ngIf="showDropdown && filteredTeams.length > 0"
-                  class="dropdown-menu show w-100">
-                <li *ngFor="let team of filteredTeams"
-                    class="dropdown-item"
-                    (click)="selectTeam(team)">
-                    {{ team.name }}
-                </li>
-              </ul>
-              <!--No match message -->
-              <div *ngIf="showDropdown && filteredTeams.length === 0"
-                  class="list-group w-100 mt-1 shadow">
-                No matching team — will be created
-              </div>
-            </div>
-
-            <button class="btn btn-success w-100" (click)="register()">
-              Create Account
-            </button>
-          </div>
-
         </div>
+
+        <button class="btn btn-success w-100" (click)="register()">
+          Create Account
+        </button>
       </div>
+
     </div>
+  </div>
+
 </div>
