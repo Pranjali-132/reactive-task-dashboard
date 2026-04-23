@@ -11,6 +11,7 @@ interface Task {
   title: string;
   description: string;
   status: string;
+  priority:string;
   assignedTo: string;        
   assignedToName?: string;   
   teamId: string;
@@ -47,6 +48,9 @@ export class TaskList implements OnInit{
   editingTaskId: string | null = null;
   currentUser: any = null;
   today: Date = new Date();
+  currentPage: number = 1;
+  itemsPerPage: number = 3;
+
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
 ngOnInit(): void {
@@ -184,6 +188,39 @@ getAdminTasks(): any[] {
 
 getEmployeeTasks(): any[] {
   return this.tasks?.filter(task => this.canModify(task)) || [];
+}
+
+get filteredTasks() {
+  return this.tasks.filter(task => {
+    const matchStatus =
+      this.selectedStatus === 'All' || task.status === this.selectedStatus;
+
+    const matchPriority =
+      this.selectedPriority === 'All' || task.priority === this.selectedPriority;
+
+    const matchSearch =
+      task.title.toLowerCase().includes(this.searchText.toLowerCase());
+
+    return matchStatus && matchPriority && matchSearch;
+  });
+}
+
+get totalPages(): number {
+  return Math.ceil(this.filteredTasks.length / this.itemsPerPage);
+}
+
+get paginatedTasks() {
+  const start = (this.currentPage - 1) * this.itemsPerPage;
+  return this.filteredTasks.slice(start, start + this.itemsPerPage);
+}
+
+goToPage(page: number) {
+  if (page < 1 || page > this.totalPages) return;
+  this.currentPage = page;
+}
+
+resetPage() {
+  this.currentPage = 1;
 }
 
 }
