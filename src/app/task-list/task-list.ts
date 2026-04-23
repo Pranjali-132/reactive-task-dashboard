@@ -35,11 +35,12 @@ export class TaskList implements OnInit{
   tasks:Task[] = [];
   searchText: string = '';
   selectedStatus: string = 'All';
+  selectedPriority: string = 'All';
   newTask = {
     title: '',
     description: '',
     status: 'Pending',
-    priority: 'medium',  
+    priority: 'low',  
     dueDate: ''           
   };
   editingTaskId: string | null = null;
@@ -67,26 +68,6 @@ getUserName(): string {
   return this.currentUser?.name || '';
 }
 
-getStatusClass(status: string): string {
-  return status.toLowerCase().replace(/\s+/g, '-');
-}
-
-getTotalTasks() {
-  return this.tasks.length;
-}
-
-getCompletedTasks() {
-  return this.tasks.filter(t => t.status === 'Completed').length;
-}
-
-getPendingTasks() {
-  return this.tasks.filter(t => t.status === 'Pending').length;
-}
-
-getInProgressTasks() {
-  return this.tasks.filter(t => t.status === 'In Progress').length;
-}
-
 addTask() {
 
   // prevent empty title
@@ -101,17 +82,17 @@ addTask() {
     return;
   }
 
-const task = {
-  title: this.newTask.title.trim(),
-  description: this.newTask.description.trim(),
-  status: this.newTask.status,
-  priority: this.newTask.priority, 
-  dueDate: this.newTask.dueDate || null,
-  assignedTo: this.currentUser.uid,
-  assignedToName: this.currentUser.username,
-  teamId: this.currentUser.teamId,
-  createdBy: this.currentUser.uid
-};
+  const task = {
+    title: this.newTask.title.trim(),
+    description: this.newTask.description.trim(),
+    status: this.newTask.status,
+    priority: this.newTask.priority, 
+    dueDate: this.newTask.dueDate || null,
+    assignedTo: this.currentUser.uid,
+    assignedToName: this.currentUser.username,
+    teamId: this.currentUser.teamId,
+    createdBy: this.currentUser.uid
+  };
 
   this.taskService.addTask(task, this.currentUser)
     .then(() => {
@@ -126,7 +107,7 @@ const task = {
     title: '',
     description: '',
     status: 'Pending',
-    priority: 'medium',
+    priority: 'low',
     dueDate: ''
   };
 

@@ -6,19 +6,19 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TaskFilterPipe implements PipeTransform {
 
-  transform(tasks: any[], searchText: string, selectedStatus: string): any[] {
-    if (!tasks) return [];
+transform(tasks: any[],searchText: string,selectedStatus: string,selectedPriority: string): any[] {
 
-    return tasks.filter(task => {
-      const matchesSearch = task.title
-        ?.toLowerCase()
-        .includes(searchText?.toLowerCase() || '');
+  if (!tasks) return [];
 
-      const matchesStatus =
-        selectedStatus === 'All' ||
-        task.status === selectedStatus;
+  return tasks.filter(task => {
+    const matchesSearch = task.title?.toLowerCase().includes(searchText?.toLowerCase() || '');
 
-      return matchesSearch && matchesStatus;
-    });
-  }
+    const matchesStatus = selectedStatus === 'All' || task.status === selectedStatus;
+
+    const matchesPriority = selectedPriority === 'All' || task.priority === selectedPriority;
+
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+}
+
 }

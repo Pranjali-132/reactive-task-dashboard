@@ -1,13 +1,18 @@
-.card {
-  border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.task-card {
+  border-radius: 14px;
+  transition: all 0.2s ease;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+.task-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
 }
 
-table td, table th {
-  vertical-align: middle;
+.my-task {
+  border: 2px solid #0d6efd;
+  background: #f8fbff;
+}
+
+.row.g-4 {
+  row-gap: 1.5rem;
 }
