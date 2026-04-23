@@ -43,6 +43,7 @@ export class TaskList implements OnInit{
     priority: 'low',  
     dueDate: ''           
   };
+  editTaskCopy: any = null;
   editingTaskId: string | null = null;
   currentUser: any = null;
   today: Date = new Date();
@@ -118,14 +119,34 @@ deleteTask(id: string) {
   this.toastService.show('Task is successfully deleted', 'info');
 }
 
-editTask(id: string) {
-  this.editingTaskId = id;
+editTask(taskId: string) {
+
+  const task = this.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  this.editingTaskId = taskId;
+
+  this.editTaskCopy = { ...task };
 }
 
-saveTask(task: any) {
-  const { id, ...taskData } = task; //remove id
-  this.taskService.updateTask(id, taskData);
+
+saveTask() {
+
+  const updated = {
+    ...this.editTaskCopy,
+    updatedAt: new Date()
+  };
+
+  this.taskService.updateTask(this.editingTaskId!, updated);
+
+  // update local UI
+  const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
+  if (index !== -1) {
+    this.tasks[index] = { ...this.tasks[index], ...updated };
+  }
+
   this.editingTaskId = null;
+  this.editTaskCopy = null;
 }
 
 logout() {
@@ -152,5 +173,17 @@ isOverdue(task: any): boolean {
   return due < today.getTime();
 }
 
+cancelEdit() {
+  this.editingTaskId = null;
+  this.editTaskCopy = null;
+}
+
+getAdminTasks(): any[] {
+  return this.tasks?.filter(task => !this.canModify(task)) || [];
+}
+
+getEmployeeTasks(): any[] {
+  return this.tasks?.filter(task => this.canModify(task)) || [];
+}
 
 }
