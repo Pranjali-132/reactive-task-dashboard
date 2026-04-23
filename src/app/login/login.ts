@@ -6,6 +6,8 @@ import { UserService } from '../services/user'
 import { ToastService } from '../services/toast-service';
 import { TeamService } from '../services/team';
 interface User {
+  id?: string;
+  uid: string;
   name: string;
   username: string;
   role: string;

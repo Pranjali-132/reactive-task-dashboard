@@ -8,6 +8,7 @@ import {
   where,
   getDocs
 } from '@angular/fire/firestore';
+import { v4 as uuidv4 } from 'uuid'; 
 
 @Injectable({
   providedIn: 'root'
@@ -28,8 +29,11 @@ async registerUser(user: any) {
     throw new Error('Username already exists');
   }
 
+  const uid = uuidv4(); // generate unique id
+
   return addDoc(usersRef, {
     ...user,
+    uid,
     username: normalizedUsername,
     role: user.role || 'employee',
     teamId: user.teamId || 'team-1'
@@ -37,18 +41,38 @@ async registerUser(user: any) {
 }
 
   // login existing user
-  async loginUser(username: string) {
-    const usersRef = collection(this.firestore, 'users');
+async loginUser(username: string) {
+  const usersRef = collection(this.firestore, 'users');
 
-    const q = query(usersRef, where('username', '==', username));
-    const userSnapshot = await getDocs(q);
+  const q = query(usersRef, where('username', '==', username));
+  const userSnapshot = await getDocs(q);
 
-    if (userSnapshot.empty) {
-      throw new Error('User not found');
-    }
-
-    return userSnapshot.docs[0].data();
+  if (userSnapshot.empty) {
+    throw new Error('User not found');
   }
+
+  const docSnap = userSnapshot.docs[0];
+
+  // ✅ cast once
+  const data = docSnap.data() as {
+    uid?: string;
+    name: string;
+    username: string;
+    role: string;
+    teamId: string;
+  };
+
+  return {
+    id: docSnap.id,
+    uid: data.uid || docSnap.id,
+    name: data.name,
+    username: data.username,
+    role: data.role,
+    teamId: data.teamId
+  };
+}
+
+
 
   async getUserByUsername(username: string) {
   const usersRef = collection(this.firestore, 'users');

@@ -11,10 +11,14 @@ interface Task {
   title: string;
   description: string;
   status: string;
-  user: string;
+  assignedTo: string;        
+  assignedToName?: string;   
   teamId: string;
-  createdBy: string;
+  createdBy: string;       
+  createdAt?: any;      
+  updatedAt?: any;
 }
+
 @Component({
   selector: 'app-task-list',
   imports: [
@@ -34,26 +38,28 @@ export class TaskList implements OnInit{
   newTask = {
     title: '',
     description: '',
-    status: 'Pending'
+    status: 'Pending',
+    priority: 'medium',  
+    dueDate: ''           
   };
   editingTaskId: string | null = null;
   currentUser: any = null;
-
+  today: Date = new Date();
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
 ngOnInit(): void {
-    const localUser = JSON.parse(localStorage.getItem('user')!);
-    this.currentUser = localUser;
+  const localUser = JSON.parse(localStorage.getItem('user')!);
+  this.currentUser = localUser;
 
-    // fetch fresh data from firebase
-    this.userService.getUserByUsername(localUser.username)
-      .then(freshUser => {
-        this.currentUser = freshUser;
-        localStorage.setItem('user', JSON.stringify(freshUser));
-    });
+  this.userService.getUserByUsername(localUser.username)
+    .then(freshUser => {
+      this.currentUser = freshUser;
+      localStorage.setItem('user', JSON.stringify(freshUser));
 
-    this.taskService.getTasks(this.currentUser).subscribe(data => {
-      this.tasks = data;
+      this.taskService.getTasks(this.currentUser)
+        .subscribe(data => {
+          this.tasks = data;
+        });
     });
 }
 
@@ -90,21 +96,24 @@ addTask() {
   }
 
   // prevent adding task without user
-  if(!this.currentUser?.username) {
+  if(!this.currentUser?.uid) {
     this.toastService.show('no user found-task not added','error');
     return;
   }
 
-  const task = {
-    title: this.newTask.title.trim(),
-    description: this.newTask.description.trim(),
-    status: this.newTask.status,
-    user: this.currentUser.username,
-    teamId: this.currentUser.teamId,
-    createdBy: this.currentUser.username
-  };
+const task = {
+  title: this.newTask.title.trim(),
+  description: this.newTask.description.trim(),
+  status: this.newTask.status,
+  priority: this.newTask.priority, 
+  dueDate: this.newTask.dueDate || null,
+  assignedTo: this.currentUser.uid,
+  assignedToName: this.currentUser.username,
+  teamId: this.currentUser.teamId,
+  createdBy: this.currentUser.uid
+};
 
-  this.taskService.addTask(task)
+  this.taskService.addTask(task, this.currentUser)
     .then(() => {
       this.toastService.show('Task added successfully', 'success');
     })
@@ -116,8 +125,11 @@ addTask() {
   this.newTask = {
     title: '',
     description: '',
-    status: 'Pending'
+    status: 'Pending',
+    priority: 'medium',
+    dueDate: ''
   };
+
 }
 
 deleteTask(id: string) {
@@ -143,5 +155,21 @@ logout() {
 isAdmin(): boolean {
   return this.currentUser?.role === 'admin';
 }
+
+canModify(task: any): boolean {
+  return task.assignedTo === this.currentUser.uid;
+}
+
+isOverdue(task: any): boolean {
+  if (!task.dueDate || task.status === 'Completed') return false;
+
+  const due = new Date(task.dueDate + 'T00:00:00').getTime();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return due < today.getTime();
+}
+
 
 }

@@ -1,22 +1,21 @@
 <div class="container-fluid p-3">
 
-  <!-- 🔹 NAVBAR -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 *ngIf="!isAdmin()">My Tasks</h2>
     <h2 *ngIf="isAdmin()">Team Tasks</h2>
 
-    <div>
-      <span class="me-3">
-        Welcome, <strong>{{ getUserName() }}</strong>
-        <span class="badge bg-secondary ms-2 text-uppercase">
-          {{ currentUser?.role }}
-        </span>
-      </span>
-      <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
-    </div>
+<div>
+  <span class="me-3">
+    Welcome, <strong>{{ getUserName() }}</strong>
+    <span class="badge bg-secondary ms-2 text-uppercase">
+      {{ currentUser?.role }}
+    </span>
+  </span>
+  <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
+</div>
+
   </div>
 
-  <!-- 🔹 SUMMARY CARDS -->
   <div class="row mb-4">
     <div class="col-md-3 mb-3">
       <div class="card text-center shadow-sm">
@@ -27,35 +26,35 @@
       </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-success">
-        <div class="card-body">
-          <h6>Completed</h6>
-          <h4 class="text-success">{{ getCompletedTasks() }}</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-warning">
-        <div class="card-body">
-          <h6>Pending</h6>
-          <h4 class="text-warning">{{ getPendingTasks() }}</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card text-center shadow-sm border-info">
-        <div class="card-body">
-          <h6>In Progress</h6>
-          <h4 class="text-info">{{ getInProgressTasks() }}</h4>
-        </div>
-      </div>
+<div class="col-md-3 mb-3">
+  <div class="card text-center shadow-sm border-success">
+    <div class="card-body">
+      <h6>Completed</h6>
+      <h4 class="text-success">{{ getCompletedTasks() }}</h4>
     </div>
   </div>
+</div>
 
-  <!-- 🔹 FILTER -->
+<div class="col-md-3 mb-3">
+  <div class="card text-center shadow-sm border-warning">
+    <div class="card-body">
+      <h6>Pending</h6>
+      <h4 class="text-warning">{{ getPendingTasks() }}</h4>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-3 mb-3">
+  <div class="card text-center shadow-sm border-info">
+    <div class="card-body">
+      <h6>In Progress</h6>
+      <h4 class="text-info">{{ getInProgressTasks() }}</h4>
+    </div>
+  </div>
+</div>
+
+  </div>
+
   <div class="row mb-4">
     <div class="col-md-6 mb-2">
       <input
@@ -66,122 +65,173 @@
       />
     </div>
 
+<div class="col-md-3 mb-2">
+  <select class="form-select" [(ngModel)]="selectedStatus">
+    <option value="All">All</option>
+    <option value="Pending">Pending</option>
+    <option value="In Progress">In Progress</option>
+    <option value="Completed">Completed</option>
+  </select>
+</div>
+```
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-3" *ngFor="let task of tasks | taskFilter:searchText:selectedStatus">
+
+  <div class="card shadow-sm h-100">
+    <div class="card-body">
+
+      <!-- VIEW MODE -->
+      <div *ngIf="editingTaskId !== task.id">
+        <h5 class="card-title">{{ task.title }}</h5>
+        <p class="card-text text-muted">{{ task.description }}</p>
+
+        <div *ngIf="isAdmin()" class="text-muted small">
+          Created by: {{ task.assignedToName || task.user }}
+        </div>
+
+        <!-- STATUS -->
+        <span class="badge"
+          [ngClass]="{
+            'bg-success': task.status === 'Completed',
+            'bg-warning': task.status === 'Pending',
+            'bg-info': task.status === 'In Progress'
+          }">
+          {{ task.status }}
+        </span>
+
+        <!-- PRIORITY -->
+        <div class="mt-2">
+          <span class="badge bg-dark text-uppercase">
+            {{ task.priority }}
+          </span>
+        </div>
+
+        <!-- DUE DATE -->
+        <div *ngIf="task.dueDate" class="small text-muted mt-1">
+          Due: {{ task.dueDate | date }}
+        </div>
+
+        <!-- OVERDUE -->
+        <div *ngIf="isOverdue(task)" class="text-danger small">
+          Overdue
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="mt-3">
+          <button *ngIf="canModify(task)"
+                  class="btn btn-outline-primary btn-sm me-2"
+                  (click)="editTask(task.id)">
+            Edit
+          </button>
+
+          <button *ngIf="canModify(task)"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="deleteTask(task.id)">
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- EDIT MODE -->
+      <div *ngIf="editingTaskId === task.id">
+        <input class="form-control mb-2" [(ngModel)]="task.title" />
+        <input class="form-control mb-2" [(ngModel)]="task.description" />
+
+        <select class="form-select mb-2" [(ngModel)]="task.status">
+          <option>Pending</option>
+          <option>In Progress</option>
+          <option>Completed</option>
+        </select>
+
+        <select class="form-select mb-2" [(ngModel)]="task.priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <input type="date" class="form-control mb-2" [(ngModel)]="task.dueDate" />
+
+        <button class="btn btn-success btn-sm"
+                (click)="saveTask(task)">
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="(tasks | taskFilter:searchText:selectedStatus).length === 0" class="text-center text-muted mt-5">
+  <h5>No tasks found</h5>
+  <p>Add a new task or change filters</p>
+</div>
+
+  </div>
+
+  <div class="card mt-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Add Task</h5>
+
+  <div class="row">
     <div class="col-md-3 mb-2">
-      <select class="form-select" [(ngModel)]="selectedStatus">
-        <option value="All">All</option>
+      <label>Task Title</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Please enter a title"
+        [(ngModel)]="newTask.title"
+        required
+      />
+    </div>
+
+    <div class="col-md-3 mb-2">
+      <label>Task Description</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Please enter a description"
+        [(ngModel)]="newTask.description"
+      />
+    </div>
+
+    <div class="col-md-2 mb-2">
+      <label>Status</label>
+      <select class="form-select" [(ngModel)]="newTask.status">
         <option value="Pending">Pending</option>
         <option value="In Progress">In Progress</option>
         <option value="Completed">Completed</option>
       </select>
     </div>
-  </div>
 
-  <!-- 🔹 TASK LIST -->
-  <div class="row">
-    <div class="col-md-4 mb-3" *ngFor="let task of tasks | taskFilter:searchText:selectedStatus">
-
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-
-          <!-- VIEW MODE -->
-          <div *ngIf="editingTaskId !== task.id">
-            <h5 class="card-title">{{ task.title }}</h5>
-            <p class="card-text text-muted">{{ task.description }}</p>
-
-            <div *ngIf="isAdmin()" class="text-muted small">
-              Created by: {{ task.user }}
-            </div>
-
-            <span class="badge"
-              [ngClass]="{
-                'bg-success': task.status === 'Completed',
-                'bg-warning': task.status === 'Pending',
-                'bg-info': task.status === 'In Progress'
-              }">
-              {{ task.status }}
-            </span>
-
-            <div class="mt-3">
-              <button *ngIf="task.user === currentUser.username" class="btn btn-outline-primary btn-sm me-2"
-                      (click)="editTask(task.id)">
-                Edit
-              </button>
-
-              <button *ngIf="task.user === currentUser.username" class="btn btn-outline-danger btn-sm"
-                      (click)="deleteTask(task.id)">
-                Delete
-              </button>
-            </div>
-          </div>
-
-          <!-- EDIT MODE -->
-          <div *ngIf="editingTaskId === task.id">
-            <input class="form-control mb-2" [(ngModel)]="task.title" />
-            <input class="form-control mb-2" [(ngModel)]="task.description" />
-
-            <select class="form-select mb-2" [(ngModel)]="task.status">
-              <option>Pending</option>
-              <option>In Progress</option>
-              <option>Completed</option>
-            </select>
-
-            <button class="btn btn-success btn-sm"
-                    (click)="saveTask(task)">
-              Save
-            </button>
-          </div>
-
-        </div>
-      </div>
-
+    <div class="col-md-2 mb-2">
+      <label>Priority</label>
+      <select class="form-select" [(ngModel)]="newTask.priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
     </div>
 
-    <div *ngIf="(tasks | taskFilter:searchText:selectedStatus).length === 0" class="text-center text-muted mt-5">
-      <h5>No tasks found</h5>
-      <p>Add a new task or change filters</p>
+    <div class="col-md-2 mb-2">
+      <label>Due date</label>
+      <input type="date" class="form-control" [(ngModel)]="newTask.dueDate" />
     </div>
   </div>
 
-  <!-- 🔹 ADD TASK FORM -->
-  <div class="card mt-4 shadow-sm">
-    <div class="card-body">
-      <h5 class="mb-3">Add Task</h5>
-
-      <div class="row">
-        <div class="col-md-4 mb-2">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Task Title"
-            [(ngModel)]="newTask.title"
-            required
-          />
-        </div>
-
-        <div class="col-md-4 mb-2">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Task Description"
-            [(ngModel)]="newTask.description"
-          />
-        </div>
-
-        <div class="col-md-2 mb-2">
-          <select class="form-select" [(ngModel)]="newTask.status">
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
-
-        <div class="col-md-2 mb-2">
-          <button class="btn btn-primary w-100" (click)="addTask()">
-            Add Task
-          </button>
-        </div>
-      </div>
+  <div class="row mb-2" style="margin-top:20px">
+    <div class="col-md-1 mb-2">
+      <button class="btn btn-primary w-100" (click)="addTask()">
+        Add Task
+      </button>
     </div>
+  </div>
+
+</div>
+
   </div>
 
 </div>
