@@ -48,8 +48,13 @@ export class TaskList implements OnInit{
   editingTaskId: string | null = null;
   currentUser: any = null;
   today: Date = new Date();
-  currentPage: number = 1;
-  itemsPerPage: number = 3;
+  // MY TASKS PAGINATION
+  myCurrentPage = 1;
+  myItemsPerPage = 3;
+  // TEAM TASKS PAGINATION
+  teamCurrentPage = 1;
+  teamItemsPerPage = 3;
+
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -199,16 +204,12 @@ cancelEdit() {
   this.editTaskCopy = null;
 }
 
-getAdminTasks(): any[] {
-  return this.tasks?.filter(task => !this.canModify(task)) || [];
+get myTasks() {
+  return this.tasks.filter(t => t.assignedTo === this.currentUser.uid);
 }
 
-getEmployeeTasks(): any[] {
-  return this.tasks?.filter(task => this.canModify(task)) || [];
-}
-
-get filteredTasks() {
-  return this.tasks.filter(task => {
+get filteredMyTasks() {
+  return this.myTasks.filter(task => {
     const matchStatus =
       this.selectedStatus === 'All' || task.status === this.selectedStatus;
 
@@ -222,22 +223,51 @@ get filteredTasks() {
   });
 }
 
-get totalPages(): number {
-  return Math.ceil(this.filteredTasks.length / this.itemsPerPage);
+get myTotalPages() {
+  return Math.ceil(this.filteredMyTasks.length / this.myItemsPerPage);
 }
 
-get paginatedTasks() {
-  const start = (this.currentPage - 1) * this.itemsPerPage;
-  return this.filteredTasks.slice(start, start + this.itemsPerPage);
+get paginatedMyTasks() {
+  const start = (this.myCurrentPage - 1) * this.myItemsPerPage;
+  return this.filteredMyTasks.slice(start, start + this.myItemsPerPage);
 }
 
-goToPage(page: number) {
-  if (page < 1 || page > this.totalPages) return;
-  this.currentPage = page;
+get teamTasks() {
+  return this.tasks.filter(t => t.assignedTo !== this.currentUser.uid);
 }
 
-resetPage() {
-  this.currentPage = 1;
+get filteredTeamTasks() {
+  return this.teamTasks.filter(task => {
+    const matchStatus =
+      this.selectedStatus === 'All' || task.status === this.selectedStatus;
+
+    const matchPriority =
+      this.selectedPriority === 'All' || task.priority === this.selectedPriority;
+
+    const matchSearch =
+      task.title.toLowerCase().includes(this.searchText.toLowerCase());
+
+    return matchStatus && matchPriority && matchSearch;
+  });
+}
+
+get teamTotalPages() {
+  return Math.ceil(this.filteredTeamTasks.length / this.teamItemsPerPage);
+}
+
+get paginatedTeamTasks() {
+  const start = (this.teamCurrentPage - 1) * this.teamItemsPerPage;
+  return this.filteredTeamTasks.slice(start, start + this.teamItemsPerPage);
+}
+
+goToMyPage(page: number) {
+  if (page < 1 || page > this.myTotalPages) return;
+  this.myCurrentPage = page;
+}
+
+goToTeamPage(page: number) {
+  if (page < 1 || page > this.teamTotalPages) return;
+  this.teamCurrentPage = page;
 }
 
 }

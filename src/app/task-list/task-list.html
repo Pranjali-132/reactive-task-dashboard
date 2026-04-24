@@ -45,9 +45,9 @@
         <label>Filter by Task Priority</label>
         <select class="form-select" [(ngModel)]="selectedPriority">
           <option value="All">All</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
         </select>
       </div>
     
@@ -59,7 +59,7 @@
 
     <h4 class="mb-3"><i class="bi bi-people"></i> Team Tasks</h4>
     <div class="row g-4">
-      <ng-container *ngFor="let task of paginatedTasks | taskFilter:searchText:selectedStatus:selectedPriority">
+      <ng-container *ngFor="let task of paginatedTeamTasks | taskFilter:searchText:selectedStatus:selectedPriority">
 
         <div class="col-md-4" *ngIf="!canModify(task)">
           <div class="card task-card h-100">
@@ -94,7 +94,7 @@
 
               <!-- DUE DATE -->
               <div *ngIf="task.dueDate" class="small text-muted mt-2">
-                <i class="bi bi-calendar"></i> {{ task.dueDate | date }}
+                <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
               </div>
 
               <!-- OVERDUE -->
@@ -108,33 +108,31 @@
       </ng-container>
 
       <!-- PAGINATION -->
-      <nav class="mt-4 d-flex justify-content-end" *ngIf="totalPages > 1">
+      <nav  class="mt-4 d-flex justify-content-end" *ngIf="teamTotalPages > 1">
         <ul class="pagination">
 
-          <li class="page-item" [class.disabled]="currentPage === 1">
-            <a class="page-link" (click)="goToPage(currentPage - 1)">
-              Prev
-            </a>
+          <li class="page-item" [class.disabled]="teamCurrentPage === 1">
+            <a class="page-link" (click)="goToTeamPage(teamCurrentPage - 1)">Prev</a>
           </li>
 
           <li class="page-item"
-              *ngFor="let page of [].constructor(totalPages); let i = index"
-              [class.active]="currentPage === i + 1">
+              *ngFor="let page of [].constructor(teamTotalPages); let i = index"
+              [class.active]="teamCurrentPage === i + 1">
 
-            <a class="page-link" (click)="goToPage(i + 1)">
+            <a class="page-link" (click)="goToTeamPage(i + 1)">
               {{ i + 1 }}
             </a>
           </li>
 
-          <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <a class="page-link" (click)="goToPage(currentPage + 1)">
-              Next
-            </a>
+          <li class="page-item" [class.disabled]="teamCurrentPage === teamTotalPages">
+            <a class="page-link" (click)="goToTeamPage(teamCurrentPage + 1)">Next</a>
           </li>
+
         </ul>
       </nav>
 
-      <div *ngIf="isAdmin() && getAdminTasks().length === 0"
+
+      <div *ngIf="paginatedTeamTasks.length === 0"
           class="text-center text-muted mt-4">
         <i class="bi bi-inbox fs-3"></i>
         <p class="mt-2">No team tasks available</p>
@@ -148,7 +146,7 @@
 
   <div class="row g-4">
 
-    <ng-container *ngFor="let task of tasks | taskFilter:searchText:selectedStatus:selectedPriority">
+    <ng-container *ngFor="let task of paginatedMyTasks | taskFilter:searchText:selectedStatus:selectedPriority">
 
       <div class="col-md-4" *ngIf="canModify(task)">
 
@@ -183,7 +181,7 @@
               </span>
 
               <div *ngIf="task.dueDate" class="small text-muted mt-2">
-                <i class="bi bi-calendar"></i> {{ task.dueDate | date }}
+                <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
               </div>
 
               <div *ngIf="isOverdue(task)" class="text-danger small">
@@ -247,7 +245,32 @@
 
     </ng-container>
 
-    <div *ngIf="!isAdmin() && getEmployeeTasks().length === 0"
+    <!--Pagination-->
+    <nav  class="mt-4 d-flex justify-content-end" *ngIf="myTotalPages > 1">
+      <ul class="pagination">
+
+        <li class="page-item" [class.disabled]="myCurrentPage === 1">
+          <a class="page-link" (click)="goToMyPage(myCurrentPage - 1)">Prev</a>
+        </li>
+
+        <li class="page-item"
+            *ngFor="let page of [].constructor(myTotalPages); let i = index"
+            [class.active]="myCurrentPage === i + 1">
+
+          <a class="page-link" (click)="goToMyPage(i + 1)">
+            {{ i + 1 }}
+          </a>
+        </li>
+
+        <li class="page-item" [class.disabled]="myCurrentPage === myTotalPages">
+          <a class="page-link" (click)="goToMyPage(myCurrentPage + 1)">Next</a>
+        </li>
+
+      </ul>
+    </nav>
+
+
+    <div *ngIf="paginatedMyTasks.length === 0"
         class="text-center text-muted mt-4">
       <i class="bi bi-check2-circle fs-3"></i>
       <p class="mt-2">You don’t have any assigned tasks</p>
