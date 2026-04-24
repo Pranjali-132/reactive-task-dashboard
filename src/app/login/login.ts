@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { UserService } from '../services/user';
 import { ToastService } from '../services/toast-service';
 import { TeamService } from '../services/team';
+import { SpinnerService } from '../services/spinner-service';
 interface User {
   uid: string;
   name: string;
@@ -45,7 +46,8 @@ export class Login implements OnInit {
     private router: Router,
     private userService: UserService,
     private toastService: ToastService,
-    private teamService: TeamService
+    private teamService: TeamService,
+    private spinner: SpinnerService
   ) {}
 
   ngOnInit() {
@@ -65,7 +67,7 @@ export class Login implements OnInit {
       this.toastService.show('Enter email & password', 'error');
       return;
     }
-
+    this.spinner.show();
     try {
       const userData = await this.userService.loginUser(this.loginEmail, this.loginPassword) as User;
 
@@ -82,6 +84,9 @@ export class Login implements OnInit {
     } catch (err: any) {
       this.toastService.show(err.message, 'error');
     }
+    finally{
+      this.spinner.hide();
+    };
   }
 
 
@@ -115,7 +120,7 @@ export class Login implements OnInit {
       this.toastService.show('Please select or enter team', 'error');
       return;
     }
-
+    this.spinner.show();
     try {
       await this.userService.registerUser({
         name: this.name.trim(),
@@ -138,6 +143,9 @@ export class Login implements OnInit {
     } catch (err: any) {
       this.toastService.show(err.message, 'error');
     }
+    finally{
+      this.spinner.hide();
+    };
   }
 
   selectTeam(team: any) {
