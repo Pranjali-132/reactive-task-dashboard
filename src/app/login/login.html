@@ -3,7 +3,6 @@
   <!-- LEFT CONTENT -->
   <div class="left-content">
 
-    <!-- BRAND -->
     <div class="brand">
       <div class="logo-text">TaskNova</div>
     </div>
@@ -45,22 +44,23 @@
         </li>
       </ul>
 
-      <!-- LOGIN -->
+      <!--LOGIN TAB-->
       <div *ngIf="activeTab === 'login'">
 
         <div class="mb-3">
-          <label class="form-label">Login as</label>
-          <select class="form-control" [(ngModel)]="role">
-            <option value="employee">Employee</option>
-            <option value="admin">Admin</option>
-          </select>
+          <label class="form-label">Email</label>
+          <input type="email"
+                 class="form-control"
+                 placeholder="Enter email"
+                 [(ngModel)]="loginEmail" />
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Username</label>
-          <input type="text" class="form-control"
-                 placeholder="Enter username"
-                 [(ngModel)]="username" />
+          <label class="form-label">Password</label>
+          <input type="password"
+                 class="form-control"
+                 placeholder="Enter password"
+                 [(ngModel)]="loginPassword" />
         </div>
 
         <button class="btn btn-primary w-100" (click)="login()">
@@ -68,37 +68,48 @@
         </button>
       </div>
 
-      <!-- REGISTER -->
+      <!-- REGISTER TAB-->
       <div *ngIf="activeTab === 'register'">
 
         <div class="mb-3">
           <label class="form-label">Full Name</label>
-          <input type="text" class="form-control"
+          <input type="text"
+                 class="form-control"
                  placeholder="Enter full name"
                  [(ngModel)]="name" />
         </div>
 
         <div class="mb-3">
           <label class="form-label">Username</label>
-          <input type="text" class="form-control"
-                 placeholder="Choose username"
-                 [(ngModel)]="username" />
+          <input type="text"
+                class="form-control"
+                placeholder="Choose a username"
+                [(ngModel)]="username" />
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Role</label>
-          <select class="form-control" [(ngModel)]="role">
-            <option value="employee">Employee</option>
-            <option value="admin">Admin</option>
-          </select>
+          <label class="form-label">Email</label>
+          <input type="email"
+                 class="form-control"
+                 placeholder="Enter email"
+                 [(ngModel)]="registerEmail" />
         </div>
 
-        <!-- TEAM INPUT -->
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password"
+                 class="form-control"
+                 placeholder="Create password"
+                 [(ngModel)]="registerPassword" />
+        </div>
+
+        <!-- TEAM -->
         <div class="mb-3 position-relative">
           <label class="form-label">Team</label>
+
           <input type="text"
                  class="form-control"
-                 placeholder="Search or enter team"
+                 placeholder="Search team"
                  [(ngModel)]="teamName"
                  (input)="filterTeams()"
                  (focus)="showDropdown = true" />
@@ -113,7 +124,7 @@
           </ul>
 
           <div *ngIf="showDropdown && filteredTeams.length === 0"
-               class="list-group w-100 mt-1 shadow">
+               class="text-muted small mt-1">
             No matching team — will be created
           </div>
         </div>
@@ -121,6 +132,7 @@
         <button class="btn btn-success w-100" (click)="register()">
           Create Account
         </button>
+
       </div>
 
     </div>

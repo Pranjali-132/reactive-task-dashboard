@@ -54,20 +54,37 @@ export class TaskList implements OnInit{
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
 ngOnInit(): void {
-  const localUser = JSON.parse(localStorage.getItem('user')!);
+
+  const storedUser = localStorage.getItem('user');
+
+  if (!storedUser) {
+    this.router.navigate(['/login']);
+    return;
+  }
+
+  const localUser = JSON.parse(storedUser);
   this.currentUser = localUser;
 
-  this.userService.getUserByUsername(localUser.username)
+  this.userService.getUserById(localUser.uid)
     .then(freshUser => {
-      this.currentUser = freshUser;
-      localStorage.setItem('user', JSON.stringify(freshUser));
+
+      if (freshUser) {
+        this.currentUser = freshUser;
+        localStorage.setItem('user', JSON.stringify(freshUser));
+      }
 
       this.taskService.getTasks(this.currentUser)
         .subscribe(data => {
           this.tasks = data;
         });
+
+    })
+    .catch(err => {
+      console.error(err);
+      this.router.navigate(['/login']);
     });
 }
+
 
 getUserName(): string {
   return this.currentUser?.name || '';

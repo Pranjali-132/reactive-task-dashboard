@@ -16,51 +16,53 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class Tasks {
-    constructor(private firestore: Firestore) {}
 
-getTasks(currentUser: any): Observable<any[]> {
-  const taskRef = collection(this.firestore, 'tasks');
+  constructor(private firestore: Firestore) {}
 
-  let q;
+  getTasks(currentUser: any): Observable<any[]> {
 
-  if (currentUser.role === 'admin') {
-    q = query(taskRef, where('teamId', '==', currentUser.teamId));
-  } else {
-    q = query(
-      taskRef,
-      where('assignedTo', '==', currentUser.uid) 
-    );
+    const taskRef = collection(this.firestore, 'tasks');
+
+    let q;
+
+    if (currentUser.role === 'admin') {
+      q = query(taskRef, where('teamId', '==', currentUser.teamId));
+    } else {
+      q = query(taskRef, where('assignedTo', '==', currentUser.uid));
+    }
+
+    return collectionData(q, { idField: 'id' });
   }
-  console.log('Current User:', currentUser);
-  return collectionData(q, { idField: 'id' });
-}
 
-addTask(task: any, currentUser: any) {
-  const taskRef = collection(this.firestore, 'tasks');
+  addTask(task: any, currentUser: any) {
 
-  return addDoc(taskRef, {
-    ...task,
-    assignedTo: task.assignedTo || currentUser.uid,
-    assignedToName: task.assignedToName || currentUser.username,
-    teamId: task.teamId || currentUser.teamId,
-    createdBy: currentUser.uid,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  });
-}
+    const taskRef = collection(this.firestore, 'tasks');
 
+    return addDoc(taskRef, {
+      ...task,
+
+      assignedTo: task.assignedTo || currentUser.uid,
+      assignedToName: task.assignedToName || currentUser.username,
+      teamId: task.teamId || currentUser.teamId,
+      createdBy: currentUser.uid,
+
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  }
 
   deleteTask(id: string) {
     const taskDoc = doc(this.firestore, `tasks/${id}`);
     return deleteDoc(taskDoc);
   }
 
-updateTask(id: string, task: any) {
-  const taskDoc = doc(this.firestore, `tasks/${id}`);
-  return updateDoc(taskDoc, {
-    ...task,
-    updatedAt: new Date() 
-  });
-}
+  updateTask(id: string, task: any) {
 
+    const taskDoc = doc(this.firestore, `tasks/${id}`);
+
+    return updateDoc(taskDoc, {
+      ...task,
+      updatedAt: new Date().toISOString()
+    });
+  }
 }

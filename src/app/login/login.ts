@@ -2,32 +2,42 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserService } from '../services/user'
+import { UserService } from '../services/user';
 import { ToastService } from '../services/toast-service';
 import { TeamService } from '../services/team';
 interface User {
-  id?: string;
   uid: string;
   name: string;
   username: string;
   role: string;
   teamId: string;
+  email: string;
 }
+
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
-  standalone: true
+  styleUrl: './login.css'
 })
 export class Login implements OnInit {
+
   activeTab: string = 'login';
-  username: string = '';
+  currentUser: any = null;
+    // AUTH FIELDS
+  loginEmail = '';
+  loginPassword = '';
+  registerEmail = '';
+  registerPassword = '';
+
+  // REGISTER FIELDS
   name: string = '';
-  role: string = 'employee';
-  teams: any[] = [];
+  username: string = '';
   teamName: string = '';
   teamId: string = '';
+
+  teams: any[] = [];
   filteredTeams: any[] = [];
   showDropdown: boolean = false;
 
@@ -35,70 +45,65 @@ export class Login implements OnInit {
     private router: Router,
     private userService: UserService,
     private toastService: ToastService,
-    private teamService:  TeamService
+    private teamService: TeamService
   ) {}
 
   ngOnInit() {
-    const user = localStorage.getItem('user');
+  const user = localStorage.getItem('user');
 
-    if (user) {
-      this.router.navigate(['/dashboard']);
-    }
-    this.teamService.getTeams().subscribe(data => {console.log('Teams:', data);this.teams = data;});
+  if (user) {
+    this.router.navigate(['/dashboard']);
   }
 
-  // Login existing user
-async login() {
-  const normalizedUsername = this.username.trim().toLowerCase();
-
-  if (!normalizedUsername) return;
-
-  try {
-    const userData = await this.userService.loginUser(normalizedUsername) as User;
-
-    //role validation
-    if (userData.role !== this.role) {
-      this.toastService.show(`You are not registered as ${this.role}`, 'error');
-      return;
-    }
-
-    // store user
-    localStorage.setItem('user', JSON.stringify(userData));
-
-    this.toastService.show('Login successful', 'success');
-
-    // role-based navigation
-    if (userData.role === 'admin') {
-      this.router.navigate(['/admin']);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
-
-  } catch (error: any) {
-    this.toastService.show(error.message);
-  }
+  this.teamService.getTeams().subscribe(data => {
+    this.teams = data;
+  });
 }
 
-  // Register new user
-  async register() {
-    if (!this.name.trim() || !this.username.trim()) {
-      this.toastService.show('Please fill all fields');
+  async login() {
+    if (!this.loginEmail || !this.loginPassword) {
+      this.toastService.show('Enter email & password', 'error');
       return;
     }
-    // find if team exists
+
+    try {
+      const userData = await this.userService.loginUser(this.loginEmail, this.loginPassword) as User;
+
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      this.toastService.show('Login successful', 'success');
+
+      if (userData.role === 'admin') {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
+
+    } catch (err: any) {
+      this.toastService.show(err.message, 'error');
+    }
+  }
+
+
+  async register() {
+
+    if (!this.name.trim() || !this.registerEmail.trim() || !this.registerPassword.trim()) {
+      this.toastService.show('Fill all required fields', 'error');
+      return;
+    }
+
     const normalize = (val: string) => val.trim().toLowerCase();
 
     let teamIdToUse = this.teamId;
 
-    // If no team selected → check or create
     if (!teamIdToUse) {
-      let selectedTeam = this.teams.find(
+      const selectedTeam = this.teams.find(
         t => normalize(t.name) === normalize(this.teamName)
       );
+
       if (selectedTeam) {
         teamIdToUse = selectedTeam.id;
-      } 
-      else {
+      } else {
         const newTeam = await this.teamService.addTeam({
           name: this.teamName.trim()
         });
@@ -107,35 +112,37 @@ async login() {
     }
 
     if (!this.teamName.trim()) {
-      this.toastService.show('Please enter a team');
+      this.toastService.show('Please select or enter team', 'error');
       return;
     }
 
     try {
       await this.userService.registerUser({
         name: this.name.trim(),
+        email: this.registerEmail.trim().toLowerCase(),
         username: this.username.trim().toLowerCase(),
-        role: this.role,
+        password:this.registerPassword,
+        role: 'employee',  
         teamId: teamIdToUse
       });
 
-      this.toastService.show('Registration successful. Please login.');
+      this.toastService.show('Registration successful', 'success');
 
-      // clear fields
       this.name = '';
+      this.registerEmail = '';
+      this.registerPassword = '';
       this.username = '';
 
-      // switch to login tab
       this.activeTab = 'login';
 
-    } catch (error: any) {
-      this.toastService.show(error.message);
+    } catch (err: any) {
+      this.toastService.show(err.message, 'error');
     }
   }
 
   selectTeam(team: any) {
     this.teamName = team.name;
-    this.teamId = team.id;   
+    this.teamId = team.id;
     this.showDropdown = false;
   }
 
@@ -148,5 +155,4 @@ async login() {
 
     this.teamId = '';
   }
-
 }

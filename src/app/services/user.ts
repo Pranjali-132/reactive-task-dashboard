@@ -1,90 +1,93 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
+  doc,
+  setDoc,
+  getDoc,
   collection,
-  addDoc,
-  collectionData,
   query,
   where,
   getDocs
 } from '@angular/fire/firestore';
-import { v4 as uuidv4 } from 'uuid'; 
+
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+
   firestore = inject(Firestore);
+  auth = inject(Auth);
 
-  // register new user
 async registerUser(user: any) {
+
+  if (!user.email || !user.password) {
+    throw new Error('Email and password required');
+  }
+
+  if (!user.username?.trim()) {
+    throw new Error('Username required');
+  }
+
+  const normalizedUsername = user.username.trim().toLowerCase();
+
+  // uniqueness check
   const usersRef = collection(this.firestore, 'users');
-
-  const normalizedUsername = user.username.toLowerCase();
-
   const q = query(usersRef, where('username', '==', normalizedUsername));
-  const existingUsers = await getDocs(q);
+  const existing = await getDocs(q);
 
-  if (!existingUsers.empty) {
+  if (!existing.empty) {
     throw new Error('Username already exists');
   }
 
-  const uid = uuidv4(); // generate unique id
+  // create auth user
+  const cred = await createUserWithEmailAndPassword(
+    this.auth,
+    user.email,
+    user.password
+  );
 
-  return addDoc(usersRef, {
-    ...user,
+  const uid = cred.user.uid;
+
+  // create firestore profile
+  await setDoc(doc(this.firestore, `users/${uid}`), {
     uid,
+    name: user.name,
     username: normalizedUsername,
-    role: user.role || 'employee',
-    teamId: user.teamId || 'team-1'
+    email: user.email,
+    role: 'employee',
+    teamId: user.teamId || ''
   });
+
+  return uid;
 }
 
-  // login existing user
-async loginUser(username: string) {
-  const usersRef = collection(this.firestore, 'users');
+  async loginUser(email: string, password: string) {
 
-  const q = query(usersRef, where('username', '==', username));
-  const userSnapshot = await getDocs(q);
+    const cred = await signInWithEmailAndPassword(
+      this.auth,
+      email,
+      password
+    );
 
-  if (userSnapshot.empty) {
-    throw new Error('User not found');
+    const uid = cred.user.uid;
+
+    const userSnap = await getDoc(doc(this.firestore, `users/${uid}`));
+
+    if (!userSnap.exists()) {
+      throw new Error('User profile not found');
+    }
+
+    return userSnap.data();
   }
 
-  const docSnap = userSnapshot.docs[0];
-
-  // ✅ cast once
-  const data = docSnap.data() as {
-    uid?: string;
-    name: string;
-    username: string;
-    role: string;
-    teamId: string;
-  };
-
-  return {
-    id: docSnap.id,
-    uid: data.uid || docSnap.id,
-    name: data.name,
-    username: data.username,
-    role: data.role,
-    teamId: data.teamId
-  };
-}
-
-
-
-  async getUserByUsername(username: string) {
-  const usersRef = collection(this.firestore, 'users');
-  const q = query(usersRef, where('username', '==', username));
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) {
-    throw new Error('User not found');
+  async getUserById(uid: string) {
+    const snap = await getDoc(doc(this.firestore, `users/${uid}`));
+    return snap.exists() ? snap.data() : null;
   }
-  const docData = snapshot.docs[0].data();
-  return {
-    id: snapshot.docs[0].id,
-    ...docData
-  };
-}
 }
