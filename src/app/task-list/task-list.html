@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <!--Admin Panel-->
+  <!-- Admin Panel - Team Tasks -->
   <div *ngIf="isAdmin()">
 
     <h4 class="mb-3"><i class="bi bi-people"></i> Team Tasks</h4>
@@ -66,11 +66,7 @@
             <div class="card-body">
 
               <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
-              <p class="text-muted small">{{ task.description }}</p>
-
-              <div class="small text-muted mb-2">
-                Assigned to: {{ task.assignedToName }}
-              </div>
+              <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
 
               <!-- STATUS -->
               <span class="badge me-2"
@@ -91,6 +87,10 @@
                 }">
                 {{ task.priority | uppercase }}
               </span>
+
+              <div class="small text-muted mt-2">
+                Assigned to: {{ task.assignedToName }}
+              </div>
 
               <!-- DUE DATE -->
               <div *ngIf="task.dueDate" class="small text-muted mt-2">
@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <!--Employee Panel-->
+  <!-- Employee Panel - My Tasks -->
   <h4 class="mt-5 mb-3"><i class="bi bi-list-check"></i> My Tasks</h4>
 
   <div class="row g-4">
@@ -166,7 +166,7 @@
             <div *ngIf="editingTaskId !== task.id">
 
               <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
-              <p class="text-muted small">{{ task.description }}</p>
+              <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
 
               <!-- STATUS -->
               <span class="badge me-2"
@@ -192,8 +192,9 @@
                 <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
               </div>
 
-              <div *ngIf="isOverdue(task)" class="text-danger small">
-                <i class="bi bi-exclamation-circle me-1"></i> Overdue
+              <div *ngIf="isOverdue(task)" class="badge bg-danger-subtle text-danger small mt-1">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                {{ getOverdueText(task) }}
               </div>
 
               <div class="small text-muted mt-2">

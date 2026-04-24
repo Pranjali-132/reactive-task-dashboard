@@ -213,6 +213,7 @@ saveTask() {
 logout() {
   localStorage.removeItem('user');
   this.router.navigate(['/login']);
+  this.toastService.show('You have been logged out successfully.', 'success');
 }
 
 isAdmin(): boolean {
@@ -233,6 +234,21 @@ isOverdue(task: any): boolean {
 
   return due < today.getTime();
 }
+
+getOverdueText(task: any): string {
+  if (!task.dueDate || task.status === 'Completed') return '';
+
+  const due = new Date(task.dueDate).getTime();
+  const now = new Date().getTime();
+  const diffTime = now - due;
+
+  if (diffTime <= 0) return '';
+
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 1) return '1 day overdue';
+  return `${diffDays} days overdue`;
+}
+
 
 cancelEdit() {
   this.editingTaskId = null;
