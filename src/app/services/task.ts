@@ -8,7 +8,8 @@ import {
   doc,
   updateDoc,
   where,
-  query
+  query,
+  serverTimestamp
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -35,7 +36,6 @@ export class Tasks {
   }
 
   addTask(task: any, currentUser: any) {
-
     const taskRef = collection(this.firestore, 'tasks');
 
     return addDoc(taskRef, {
@@ -46,23 +46,26 @@ export class Tasks {
       teamId: task.teamId || currentUser.teamId,
       createdBy: currentUser.uid,
 
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
   }
+
 
   deleteTask(id: string) {
     const taskDoc = doc(this.firestore, `tasks/${id}`);
     return deleteDoc(taskDoc);
   }
 
-  updateTask(id: string, task: any) {
+updateTask(id: string, task: any) {
+  const taskDoc = doc(this.firestore, `tasks/${id}`);
 
-    const taskDoc = doc(this.firestore, `tasks/${id}`);
+  const { createdAt, updatedAt, ...rest } = task;
 
-    return updateDoc(taskDoc, {
-      ...task,
-      updatedAt: new Date().toISOString()
-    });
-  }
+  return updateDoc(taskDoc, {
+    ...rest,
+    updatedAt: serverTimestamp()
+  });
+}
+
 }

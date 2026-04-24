@@ -103,6 +103,12 @@ addTask() {
     return;
   }
 
+  //prevent empty date field
+  if (!this.newTask.dueDate) {
+    this.toastService.show('Please select a due date','error');
+    return;
+  }
+
   // prevent adding task without user
   if(!this.currentUser?.uid) {
     this.toastService.show('no user found-task not added','error');
@@ -126,7 +132,7 @@ addTask() {
       this.toastService.show('Task added successfully', 'success');
     })
     .catch(err => {
-      this.toastService.show('ERROR ADDING TASK:', err);
+      this.toastService.show('Error adding task', 'error');
     });
 
   // reset form
@@ -141,8 +147,13 @@ addTask() {
 }
 
 deleteTask(id: string) {
-  this.taskService.deleteTask(id);
-  this.toastService.show('Task is successfully deleted', 'info');
+  this.taskService.deleteTask(id)
+    .then(() => {
+      this.toastService.show('Task is successfully deleted', 'info');
+    })
+    .catch(() => {
+      this.toastService.show('Error deleting task', 'error');
+    });
 }
 
 editTask(taskId: string) {
@@ -157,22 +168,46 @@ editTask(taskId: string) {
 
 
 saveTask() {
+  const title = this.editTaskCopy?.title?.trim();
+  if (!title) {
+    this.toastService.show('Title cannot be empty', 'error');
+    return;
+  }
+
+  const dueDate = this.editTaskCopy?.dueDate;
+  if (!dueDate) {
+    this.toastService.show('Due date cannot be empty', 'error');
+    return;
+  }
+
+  if (isNaN(Date.parse(dueDate))) {
+    this.toastService.show('Invalid due date', 'error');
+    return;
+  }
 
   const updated = {
     ...this.editTaskCopy,
     updatedAt: new Date()
   };
 
-  this.taskService.updateTask(this.editingTaskId!, updated);
+  this.taskService.updateTask(this.editingTaskId!, updated)
+    .then(() => {
+      this.toastService.show('Task updated successfully', 'success');
 
-  // update local UI
-  const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
-  if (index !== -1) {
-    this.tasks[index] = { ...this.tasks[index], ...updated };
-  }
+      // update local UI
+      const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
+      if (index !== -1) {
+        this.tasks[index] = { ...this.tasks[index], ...updated };
+      }
 
-  this.editingTaskId = null;
-  this.editTaskCopy = null;
+      // reset edit state
+      this.editingTaskId = null;
+      this.editTaskCopy = null;
+
+    })
+    .catch((err) => {
+      this.toastService.show('Failed to update task. Please try again.', 'error');
+    });
 }
 
 logout() {
@@ -269,5 +304,15 @@ goToTeamPage(page: number) {
   if (page < 1 || page > this.teamTotalPages) return;
   this.teamCurrentPage = page;
 }
+
+formatDate(ts: any) {
+  if (!ts) return null;
+
+  if (typeof ts.toDate === 'function') {
+    return ts.toDate();
+  }
+  return new Date(ts);
+}
+
 
 }

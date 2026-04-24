@@ -102,6 +102,14 @@
                 <i class="bi bi-exclamation-circle me-1"></i> Overdue
               </div>
 
+              <div class="small text-muted mt-2">
+                 Created At: {{ formatDate(task.createdAt) | date:'medium' }}
+              </div>
+
+              <div class="small text-muted mt-2">
+                 Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
+              </div>
+
             </div>
           </div>
         </div>
@@ -186,6 +194,14 @@
 
               <div *ngIf="isOverdue(task)" class="text-danger small">
                 <i class="bi bi-exclamation-circle me-1"></i> Overdue
+              </div>
+
+              <div class="small text-muted mt-2">
+                 Created At: {{ formatDate(task.createdAt) | date:'medium' }}
+              </div>
+
+              <div class="small text-muted mt-2">
+                 Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
               </div>
 
               <!-- ACTIONS -->
