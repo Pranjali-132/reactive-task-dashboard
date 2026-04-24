@@ -1,144 +1,149 @@
-# Task Dashboard
+# TaskNova
 
 A role-based task management web application built using Angular and Firebase, designed to help teams manage tasks efficiently with separate dashboards for Admin and Employee users.
 
----
-
 ## 🚀 Live Demo
 
-[https://eloquent-chaja-a1eff7.netlify.app/login](https://eloquent-chaja-a1eff7.netlify.app/login)
-
----
+👉 https://taskdashboard-13.web.app
 
 ## 📌 Project Overview
 
-Reactive Task Dashboard is a single-page application that demonstrates role-based access control (RBAC) using Angular and Firebase. It allows users to register and log in using a unique username and assigned role, and provides different permissions for Admin and Employee users.
-
-The system focuses on task management within teams, where users can create, update, and delete tasks based on their assigned role and ownership.
-
----
+TaskNova is a single-page application that demonstrates role-based access control (RBAC) using Angular and Firebase.
+The application now uses **Firebase Email/Password Authentication** along with Firestore-based user profiles. It enables secure login, team-based task management, and controlled access based on user roles.
 
 ## 🎯 Key Features
 
 ### 🔐 Authentication System
 
-* Username-based registration and login
-* Role selection during registration (Admin / Employee)
-* User profile stored in Firebase Firestore
-* Session-based access control
+* Firebase Email/Password authentication
+* Secure user registration and login
+* Firestore user profile linked with Firebase Auth UID
+* Persistent login sessions
+* Unique username support (validated during registration)
+
 
 ### 👥 Role-Based Access Control (RBAC)
 
-* Admin dashboard for team-level task management
+* Default role: **Employee**
+* Admin dashboard for team-level task visibility
 * Employee dashboard for personal task management
-* Route protection using Angular Guards
-* Access restriction based on assigned role
+* Role-based UI rendering and access control
 
 ### 📝 Task Management
 
-* Create new tasks
-* Edit existing tasks
-* Delete tasks
-* Task ownership enforcement (users can manage only their own tasks)
-* Admin can manage tasks within their assigned team scope
+* Create, edit, and delete tasks
+* Task ownership enforcement
+* Admin can view team tasks (excluding their own)
+* Employee sees only assigned tasks
+* Task fields include:
 
-### 🧭 Navigation & Guards
+  * Title, Description
+  * Status (Pending / In Progress / Completed)
+  * Priority (Low / Medium / High)
+  * Due Date
+  * Assigned User
+  * Created At / Updated At timestamps
 
-* Auth guards for protected routes
-* Role-based route access control
-* Prevent unauthorized dashboard access
 
-### 🧱 Application Structure
+### 🔍 Filtering & Pagination
 
-* Modular Angular architecture
-* Separation of concerns using Services
-* Pipes for UI data transformation
-* Clean component-based UI design
+* Search by task title
+* Filter by status and priority
+* Separate pagination for:
 
----
+  * My Tasks
+  * Team Tasks (Admin)
+* Proper flow: **Filter → Paginate → Render**
+
+### 👥 Team Management
+
+* Users can select or create teams during registration
+* Tasks are scoped by `teamId`
+* Admins operate within their team context
+
+### 🧭 Navigation & Session Handling
+
+* Session stored in localStorage
+* Auto-redirect if already logged in
+* Logout clears session and redirects to login
 
 ## 🏗️ Tech Stack
 
-* Frontend: Angular
-* Backend: Firebase (Firestore)
-* Authentication: Custom username-based system (Firestore-backed)
-* Hosting: Netlify
-* Styling: CSS / Bootstrap
-
----
+* **Frontend:** Angular
+* **Backend:** Firebase Firestore
+* **Authentication:** Firebase Auth (Email/Password)
+* **Hosting:** Firebase Hosting
+* **Styling:** Bootstrap + Custom CSS
 
 ## 📁 Project Architecture
 
-```
 App
  ├── Components
  │    ├── Login / Register
- │    ├── Admin Dashboard
- │    ├── Employee Dashboard
- │    └── Task Components
+ │    ├── Task Dashboard
  │
  ├── Services
- │    └── Task Service (CRUD operations)
- │
- ├── Guards
- │    ├── Auth Guard
- │    └── Role Guard
+ │    ├── User Service (Auth + Profile)
+ │    ├── Task Service (CRUD)
+ │    └── Team Service
  │
  ├── Pipes
- │    └── Data transformation utilities
+ │    └── Task Filter Pipe
  │
  └── Firebase Integration
-      ├── Firestore (tasks + users + teams)
-      └── Custom authentication logic
-```
-
----
+      ├── Auth (Email/Password)
+      ├── Firestore (users, tasks, teams)
+      └── Hosting
 
 ## 🔄 Application Flow
 
-1. User registers with username and selects role
-2. User data is stored in Firestore
-3. User logs in using username
-4. Role is validated and stored in session
-5. Route guards control dashboard access
-6. Users interact with task system based on permissions
+1. User registers using email & password
+2. Firebase Auth creates account and returns UID
+3. Firestore user profile is created using UID
+4. User logs in using email/password
+5. Role and team info fetched from Firestore
+6. Tasks are fetched based on:
 
----
+   * Role (Admin / Employee)
+   * Ownership (`assignedTo`)
+   * Team (`teamId`)
+7. UI updates dynamically based on permissions
 
 ## 🔐 Security Model
 
-* Route-level protection using Angular Guards
-* Role-based access enforced at UI and routing level
-* Task ownership validation before edit/delete operations
-* Firebase Firestore used as backend data store
-
----
+* Firebase Authentication for secure login
+* Firestore stores user metadata (role, team)
+* Role-based UI restrictions
+* Task ownership enforced in UI logic
+* Team-based task isolation
 
 ## ⚠️ Design Notes
 
-* Authentication is implemented using a custom username-based system (not email/password authentication)
-* Role assignment is performed at registration and used for access control
-* Firebase Firestore is used for persistent storage of users and tasks
-
----
+* Role is **not user-selectable** during registration (defaults to Employee)
+* Username is required and must be unique
+* Admin role must be assigned manually (via Firestore if needed)
+* Pagination and filtering are handled separately for accuracy
 
 ## 📈 Future Improvements
 
-* Firebase Email/Password authentication integration
-* Enhanced Firestore security rules
-* Audit logs for task updates
-* Real-time collaboration features
-* Advanced filtering and search
-* Pagination for large task sets
-
----
+* Firestore security rules (server-side enforcement)
+* Admin user management panel
+* Real-time updates with listeners
+* Task assignment to multiple users
+* Activity logs / audit trail
+* UI/UX enhancements
 
 ## 👨‍💻 Author
 
-Developed by: Pranjali Sahu
-
----
+Developed by: **Pranjali Sahu**
 
 ## 🏁 Summary
 
-This project demonstrates a role-based task management system built with Angular and Firebase, focusing on modular architecture, route protection, and task-level permissions in a multi-user
+This project demonstrates a production-ready task management system with:
+
+* Firebase Authentication
+* Role-based access control
+* Team-based task segregation
+* Clean Angular architecture
+
+It reflects real-world patterns for scalable frontend + backend integration using Firebase.
