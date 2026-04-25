@@ -7,7 +7,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  collectionData
 } from '@angular/fire/firestore';
 
 import {
@@ -90,4 +91,13 @@ async registerUser(user: any) {
     const snap = await getDoc(doc(this.firestore, `users/${uid}`));
     return snap.exists() ? snap.data() : null;
   }
+
+  getTeamMembers(teamId: string) {
+  const usersRef = collection(this.firestore, 'users');
+
+  const q = query(usersRef, where('teamId', '==', teamId));
+
+  return collectionData(q, { idField: 'uid' });
+}
+
 }

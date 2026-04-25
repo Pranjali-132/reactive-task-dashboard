@@ -54,7 +54,8 @@ export class TaskList implements OnInit{
   // TEAM TASKS PAGINATION
   teamCurrentPage = 1;
   teamItemsPerPage = 3;
-
+  teamMembers: any[] = [];
+  selectedAssigneeId: string = '';
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -88,6 +89,14 @@ ngOnInit(): void {
       console.error(err);
       this.router.navigate(['/login']);
     });
+
+    if (this.currentUser.role === 'admin') {
+     this.userService.getTeamMembers(this.currentUser.teamId)
+      .subscribe(users => {
+        this.teamMembers = users;
+        this.selectedAssigneeId = this.currentUser.uid;
+      });
+  }
 }
 
 
@@ -115,16 +124,23 @@ addTask() {
     return;
   }
 
+    const assignedUser = this.teamMembers.find(
+    u => u.uid === this.selectedAssigneeId
+    ) || this.currentUser;
+
   const task = {
     title: this.newTask.title.trim(),
     description: this.newTask.description.trim(),
     status: this.newTask.status,
-    priority: this.newTask.priority, 
+    priority: this.newTask.priority,
     dueDate: this.newTask.dueDate || null,
-    assignedTo: this.currentUser.uid,
-    assignedToName: this.currentUser.username,
+    assignedTo: assignedUser.uid,
+    assignedToName: assignedUser.username,
+    createdBy: this.currentUser.uid,
+    createdByName: this.currentUser.username,
     teamId: this.currentUser.teamId,
-    createdBy: this.currentUser.uid
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   this.taskService.addTask(task, this.currentUser)
@@ -236,17 +252,20 @@ isOverdue(task: any): boolean {
 }
 
 getOverdueText(task: any): string {
+
   if (!task.dueDate || task.status === 'Completed') return '';
 
-  const due = new Date(task.dueDate).getTime();
-  const now = new Date().getTime();
-  const diffTime = now - due;
+  const due = new Date(task.dueDate);
+  const today = new Date();
+  due.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const diffTime = today.getTime() - due.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-  if (diffTime <= 0) return '';
+  if (diffDays <= 0) return '';
 
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  if (diffDays === 1) return '1 day overdue';
-  return `${diffDays} days overdue`;
+  const days = Math.floor(diffDays);
+  return days === 1 ? '1 day overdue' : `${days} days overdue`;
 }
 
 

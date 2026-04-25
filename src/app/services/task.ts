@@ -45,7 +45,7 @@ export class Tasks {
       assignedToName: task.assignedToName || currentUser.username,
       teamId: task.teamId || currentUser.teamId,
       createdBy: currentUser.uid,
-
+      createdByName: currentUser.username,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
