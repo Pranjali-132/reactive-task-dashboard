@@ -82,7 +82,7 @@ export class Login implements OnInit {
       }
 
     } catch (err: any) {
-      this.toastService.show(err.message, 'error');
+      this.toastService.show('Invalid credentials. Please try again.', 'error');
     }
     finally{
       this.spinner.hide();
