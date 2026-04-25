@@ -56,6 +56,9 @@ export class TaskList implements OnInit{
   teamItemsPerPage = 3;
   teamMembers: any[] = [];
   selectedAssigneeId: string = '';
+  editingTeamTaskId: string | null = null;
+  editTeamTaskCopy: any = null;
+  originalAssignedTo: string | null = null;
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -349,5 +352,50 @@ formatDate(ts: any) {
   return new Date(ts);
 }
 
+editTeamTask(taskId: string) {
+  const task = this.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  this.editingTeamTaskId = taskId;
+  this.editTeamTaskCopy = { ...task };
+
+  this.originalAssignedTo = task.assignedTo;
+}
+
+saveTeamTask() {
+  if (this.originalAssignedTo !== this.editTeamTaskCopy.assignedTo) {
+    const selectedUser = this.teamMembers.find(
+      u => u.uid === this.editTeamTaskCopy.assignedTo
+    );
+    this.editTeamTaskCopy.assignedBy = this.currentUser.uid;
+    this.editTeamTaskCopy.assignedByName = this.currentUser.username;
+    this.editTeamTaskCopy.assignedToName = selectedUser?.username || '';
+  }
+
+  const updated = {
+    ...this.editTeamTaskCopy,
+    updatedAt: new Date()
+  };
+
+  this.taskService.updateTask(this.editingTeamTaskId!, updated)
+    .then(() => {
+      this.toastService.show('Team task updated successfully', 'success');
+
+      this.editingTeamTaskId = null;
+      this.editTeamTaskCopy = null;
+      this.originalAssignedTo = null;
+    })
+    .catch(() => {
+      this.toastService.show('Failed to update task', 'error');
+    });
+}
+
+  cancelEditforTeamTasks(){
+      this.editingTaskId = null;
+      this.editTaskCopy = null;
+      this.editingTeamTaskId = null;
+      this.editTeamTaskCopy = null;
+      this.originalAssignedTo = null;
+  }
 
 }
