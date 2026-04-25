@@ -65,9 +65,10 @@
           <div class="card task-card h-100">
             <div class="card-body">
 
+              <!--EDIT MODE-->
               <div *ngIf="editingTeamTaskId === task.id; else viewMode">
 
-              <!-- Title -->
+                <!-- Title -->
                 <input [(ngModel)]="editTeamTaskCopy.title"
                       class="form-control mb-2" />
 
@@ -105,81 +106,89 @@
                   </option>
                 </select>
 
-                <!-- ACTIONS -->
+              </div>
+
+              <!--VIEW MODE-->
+              <ng-template #viewMode>
+
+                <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
+                <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
+
+                <!-- STATUS -->
+                <span class="badge me-2"
+                  [ngClass]="{
+                    'bg-success': task.status === 'Completed',
+                    'bg-warning': task.status === 'Pending',
+                    'bg-info': task.status === 'In Progress'
+                  }">
+                  {{ task.status }}
+                </span>
+
+                <!-- PRIORITY -->
+                <span class="badge"
+                  [ngClass]="{
+                    'bg-danger': task.priority?.toLowerCase() === 'high',
+                    'bg-primary': task.priority?.toLowerCase() === 'medium',
+                    'bg-secondary': task.priority?.toLowerCase() === 'low'
+                  }">
+                  {{ task.priority | uppercase }}
+                </span>
+
+                <div class="small text-muted mt-2">
+                  Assigned to: {{ task.assignedToName }}
+                </div>
+
+                <div class="text-muted small mt-2">
+                  Assigned By: {{ task.assignedByName || task.createdByName }}
+                  <span *ngIf="task.createdBy === currentUser.uid || task.assignedBy === currentUser.uid" class="fw-semibold text-dark">
+                    <i class="bi bi-person-check text-primary"></i> Admin
+                  </span>
+                </div>
+
+                <!-- DUE DATE -->
+                <div *ngIf="task.dueDate" class="small text-muted mt-2">
+                  <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
+                </div>
+
+                <!-- OVERDUE -->
+                <div *ngIf="isOverdue(task)" class="badge bg-danger-subtle text-danger small mt-1">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  {{ getOverdueText(task) }}
+                </div>
+
+                <div class="small text-muted mt-2">
+                  Created At: {{ formatDate(task.createdAt) | date:'medium' }}
+                </div>
+
+                <div class="small text-muted mt-2">
+                  Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
+                </div>
+              
+              </ng-template>
+            </div>
+
+            <div class="card-footer bg-transparent border-0">
+
+              <!--EDIT MODE BUTTONS-->
+              <div *ngIf="editingTeamTaskId === task.id">   
                 <button class="btn btn-success btn-sm me-2"
                         (click)="saveTeamTask()">
-                  Save
+                  SAVE
                 </button>
 
                 <button class="btn btn-secondary btn-sm"
                         (click)="cancelEditforTeamTasks()">
-                  Cancel
-                </button>
-
-            </div>
-
-            <ng-template #viewMode>
-
-              <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
-              <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
-
-              <!-- STATUS -->
-              <span class="badge me-2"
-                [ngClass]="{
-                  'bg-success': task.status === 'Completed',
-                  'bg-warning': task.status === 'Pending',
-                  'bg-info': task.status === 'In Progress'
-                }">
-                {{ task.status }}
-              </span>
-
-              <!-- PRIORITY -->
-              <span class="badge"
-                [ngClass]="{
-                  'bg-danger': task.priority?.toLowerCase() === 'high',
-                  'bg-primary': task.priority?.toLowerCase() === 'medium',
-                  'bg-secondary': task.priority?.toLowerCase() === 'low'
-                }">
-                {{ task.priority | uppercase }}
-              </span>
-
-              <div class="small text-muted mt-2">
-                Assigned to: {{ task.assignedToName }}
-              </div>
-
-              <div class="text-muted small mt-2">
-                Assigned By: {{ task.assignedByName || task.createdByName }}
-                <span *ngIf="task.createdBy === currentUser.uid || task.assignedBy === currentUser.uid" class="fw-semibold text-dark">
-                  <i class="bi bi-person-check text-primary"></i> Admin
-                </span>
-              </div>
-
-              <!-- DUE DATE -->
-              <div *ngIf="task.dueDate" class="small text-muted mt-2">
-                <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
-              </div>
-
-              <!-- OVERDUE -->
-              <div *ngIf="isOverdue(task)" class="badge bg-danger-subtle text-danger small mt-1">
-                <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                {{ getOverdueText(task) }}
-              </div>
-
-              <div class="small text-muted mt-2">
-                 Created At: {{ formatDate(task.createdAt) | date:'medium' }}
-              </div>
-
-              <div class="small text-muted mt-2">
-                 Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
-              </div>
-
-              <div class="mt-3">
-                  <button class="btn btn-outline-primary btn-sm me-2" (click)="editTeamTask(task.id)">
-                  Edit
+                  CANCEL
                 </button>
               </div>
-            
-            </ng-template>
+
+              <!--VIEW MODE BUTTONS-->
+              <div *ngIf="editingTeamTaskId !== task.id">
+                    <button class="btn btn-outline-primary btn-sm me-2" (click)="editTeamTask(task.id)">
+                    EDIT
+                  </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -225,118 +234,116 @@
   <div class="row g-4">
 
     <ng-container *ngFor="let task of paginatedMyTasks | taskFilter:searchText:selectedStatus:selectedPriority">
-
       <div class="col-md-4" *ngIf="canModify(task)">
-
         <div class="card task-card my-task h-100">
-
           <div class="card-body">
 
-            <!-- NORMAL VIEW -->
-            <div *ngIf="editingTaskId !== task.id">
+              <!--VIEW MODE-->
+              <div *ngIf="editingTaskId !== task.id">
 
-              <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
-              <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
+                <h5 class="fw-bold">{{ task.title | titlecase}}</h5>
+                <p class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</p>
 
-              <!-- STATUS -->
-              <span class="badge me-2"
-                [ngClass]="{
-                  'bg-success': task.status === 'Completed',
-                  'bg-warning': task.status === 'Pending',
-                  'bg-info': task.status === 'In Progress'
-                }">
-                {{ task.status }}
-              </span>
-
-              <!-- PRIORITY -->
-              <span class="badge"
-                [ngClass]="{
-                  'bg-danger': task.priority?.toLowerCase() === 'high',
-                  'bg-primary': task.priority?.toLowerCase() === 'medium',
-                  'bg-secondary': task.priority?.toLowerCase() === 'low'
-                }">
-                {{ task.priority | uppercase }}
-              </span>
-
-              <div class="text-muted small mt-2" *ngIf="!isAdmin()">
-                Assigned By: {{ task.assignedByName || task.createdByName }}
-                <span *ngIf="task.createdBy !== currentUser.uid" class="fw-semibold text-dark">
-                  <i class="bi bi-person-check text-primary"></i> Admin
+                <!-- STATUS -->
+                <span class="badge me-2"
+                  [ngClass]="{
+                    'bg-success': task.status === 'Completed',
+                    'bg-warning': task.status === 'Pending',
+                    'bg-info': task.status === 'In Progress'
+                  }">
+                  {{ task.status }}
                 </span>
+
+                <!-- PRIORITY -->
+                <span class="badge"
+                  [ngClass]="{
+                    'bg-danger': task.priority?.toLowerCase() === 'high',
+                    'bg-primary': task.priority?.toLowerCase() === 'medium',
+                    'bg-secondary': task.priority?.toLowerCase() === 'low'
+                  }">
+                  {{ task.priority | uppercase }}
+                </span>
+
+                <div class="text-muted small mt-2" *ngIf="!isAdmin()">
+                  Assigned By: {{ task.assignedByName || task.createdByName }}
+                  <span *ngIf="task.createdBy !== currentUser.uid" class="fw-semibold text-dark">
+                    <i class="bi bi-person-check text-primary"></i> Admin
+                  </span>
+                </div>
+
+                <div *ngIf="task.dueDate" class="small text-muted mt-2">
+                  <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
+                </div>
+
+                <div *ngIf="isOverdue(task)" class="badge bg-danger-subtle text-danger small mt-1">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  {{ getOverdueText(task) }}
+                </div>
+
+                <div class="small text-muted mt-2">
+                  Created At: {{ formatDate(task.createdAt) | date:'medium' }}
+                </div>
+
+                <div class="small text-muted mt-2">
+                  Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
+                </div>
+
               </div>
 
-              <div *ngIf="task.dueDate" class="small text-muted mt-2">
-                <i class="bi bi-calendar"></i> Due Date: {{ task.dueDate | date }}
-              </div>
+              <!-- EDIT MODE -->
+            <div *ngIf="editingTaskId === task.id">
 
-              <div *ngIf="isOverdue(task)" class="badge bg-danger-subtle text-danger small mt-1">
-                <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                {{ getOverdueText(task) }}
-              </div>
+              <input class="form-control mb-2" [(ngModel)]="editTaskCopy.title" />
+              <input class="form-control mb-2" [(ngModel)]="editTaskCopy.description" />
 
-              <div class="small text-muted mt-2">
-                 Created At: {{ formatDate(task.createdAt) | date:'medium' }}
-              </div>
+              <select class="form-select mb-2" [(ngModel)]="editTaskCopy.status">
+                <option>Pending</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
 
-              <div class="small text-muted mt-2">
-                 Updated At: {{ formatDate(task.updatedAt) | date:'medium' }}
-              </div>
+              <select class="form-select mb-2" [(ngModel)]="editTaskCopy.priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
 
-              <!-- ACTIONS -->
-              <div class="mt-3">
-                <button class="btn btn-outline-primary btn-sm me-2"
-                        (click)="editTask(task.id)">
-                  Edit
-                </button>
-
-                <button class="btn btn-outline-danger btn-sm"
-                        (click)="deleteTask(task.id)">
-                  Delete
-                </button>
-              </div>
+              <input type="date" class="form-control mb-2" [(ngModel)]="editTaskCopy.dueDate" />
 
             </div>
-
-            <!-- EDIT VIEW -->
-           <div *ngIf="editingTaskId === task.id">
-
-            <input class="form-control mb-2" [(ngModel)]="editTaskCopy.title" />
-            <input class="form-control mb-2" [(ngModel)]="editTaskCopy.description" />
-
-            <select class="form-select mb-2" [(ngModel)]="editTaskCopy.status">
-              <option>Pending</option>
-              <option>In Progress</option>
-              <option>Completed</option>
-            </select>
-
-            <select class="form-select mb-2" [(ngModel)]="editTaskCopy.priority">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-
-            <input type="date" class="form-control mb-2" [(ngModel)]="editTaskCopy.dueDate" />
-
-            <button class="btn btn-success btn-sm"
-                    (click)="saveTask()">
-              Save
-            </button>
-
-            <button class="btn btn-secondary btn-sm ms-2"
-                    (click)="cancelEdit()">
-              Cancel
-            </button>
-
           </div>
 
+          <div class="card-footer bg-transparent border-0 mt-auto">
+            
+             <!--VIEW MODE BUTTONS-->
+             <div *ngIf="editingTaskId !== task.id" class="d-flex justify-content-start gap-2">
+                  <button class="btn btn-outline-primary btn-sm me-2"
+                          (click)="editTask(task.id)">
+                    EDIT
+                  </button>
+
+                  <button class="btn btn-outline-danger btn-sm"
+                          (click)="deleteTask(task.id)">
+                    DELETE
+                  </button>
+             </div>
+
+            <!-- EDIT MODE BUTTONS -->
+             <div *ngIf="editingTaskId === task.id" class="d-flex justify-content-start gap-2">
+                <button class="btn btn-success btn-sm"
+                        (click)="saveTask()">
+                  SAVE
+                </button>
+
+                <button class="btn btn-secondary btn-sm ms-2"
+                        (click)="cancelEdit()">
+                  CANCEL
+                </button>
+             </div>
 
           </div>
-
-
         </div>
-
       </div>
-
     </ng-container>
 
     <!--Pagination-->
@@ -363,7 +370,7 @@
       </ul>
     </nav>
 
-
+    <!--No tasks message-->
     <div *ngIf="paginatedMyTasks.length === 0"
         class="text-center text-muted mt-4">
       <i class="bi bi-check2-circle fs-3"></i>

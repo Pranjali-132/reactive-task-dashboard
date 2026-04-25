@@ -11,3 +11,7 @@
 .row.g-4 {
   row-gap: 1.5rem;
 }
+
+.card-footer {
+  padding-top: 0.75rem;
+}
