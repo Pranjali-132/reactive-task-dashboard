@@ -69,14 +69,17 @@
               <div *ngIf="editingTeamTaskId === task.id; else viewMode">
 
                 <!-- Title -->
+                 <label class="small text-muted">Title</label>
                 <input [(ngModel)]="editTeamTaskCopy.title"
                       class="form-control mb-2" />
 
                 <!-- Description -->
+                 <label class="small text-muted">Description</label>
                 <input [(ngModel)]="editTeamTaskCopy.description"
                       class="form-control mb-2" />
 
                 <!-- Status -->
+                 <label class="small text-muted">Status</label>
                 <select [(ngModel)]="editTeamTaskCopy.status"
                         class="form-select mb-2">
                   <option>Pending</option>
@@ -85,6 +88,7 @@
                 </select>
 
                 <!-- Priority -->
+                 <label class="small text-muted">Priority</label>
                 <select [(ngModel)]="editTeamTaskCopy.priority"
                         class="form-select mb-2">
                   <option value="low">Low</option>
@@ -93,11 +97,13 @@
                 </select>
 
                 <!-- Due Date -->
+                 <label class="small text-muted">Due date</label>
                 <input type="date"
                       [(ngModel)]="editTeamTaskCopy.dueDate"
                       class="form-control mb-2" />
 
                 <!-- Reassign -->
+                 <label class="small text-muted">Reassign To</label>
                 <select [(ngModel)]="editTeamTaskCopy.assignedTo"
                         class="form-select mb-2">
                   <option *ngFor="let user of teamMembers"
@@ -293,22 +299,40 @@
               <!-- EDIT MODE -->
             <div *ngIf="editingTaskId === task.id">
 
+              <label class="small text-muted">Title</label>
               <input class="form-control mb-2" [(ngModel)]="editTaskCopy.title" />
+
+              <label class="small text-muted">Description</label>
               <input class="form-control mb-2" [(ngModel)]="editTaskCopy.description" />
 
+              <label class="small text-muted">Status</label>
               <select class="form-select mb-2" [(ngModel)]="editTaskCopy.status">
                 <option>Pending</option>
                 <option>In Progress</option>
                 <option>Completed</option>
               </select>
 
+              <label class="small text-muted">Priority</label>
               <select class="form-select mb-2" [(ngModel)]="editTaskCopy.priority">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
 
+              <label class="small text-muted">Due Date</label>
               <input type="date" class="form-control mb-2" [(ngModel)]="editTaskCopy.dueDate" />
+
+              <!--Reassigned to shown only for admin -->
+              <div *ngIf="isAdmin()" class="mb-2">
+                <label class="small text-muted">Reassign To</label>
+                <select [(ngModel)]="editTaskCopy.assignedTo"
+                        class="form-select form-select-sm">
+                  <option *ngFor="let user of teamMembers"
+                          [value]="user.uid">
+                    {{ user.username }}
+                  </option>
+                </select>
+              </div>
 
             </div>
           </div>

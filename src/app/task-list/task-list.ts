@@ -176,15 +176,12 @@ deleteTask(id: string) {
 }
 
 editTask(taskId: string) {
-
   const task = this.tasks.find(t => t.id === taskId);
   if (!task) return;
 
   this.editingTaskId = taskId;
-
-  this.editTaskCopy = { ...task };
+  this.editTaskCopy = JSON.parse(JSON.stringify(task));
 }
-
 
 saveTask() {
   const title = this.editTaskCopy?.title?.trim();
@@ -204,6 +201,22 @@ saveTask() {
     return;
   }
 
+  const originalTask = this.tasks.find(t => t.id === this.editingTaskId);
+  // reassignment ONLY for admin
+  if (this.isAdmin()) {
+    const selectedUser = this.teamMembers.find(
+      u => u.uid === this.editTaskCopy.assignedTo
+    );
+    if (selectedUser) {
+      this.editTaskCopy.assignedToName = selectedUser.username;
+    }
+    // Update assignedBy ONLY if reassignment happened
+    if (originalTask && originalTask.assignedTo !== this.editTaskCopy.assignedTo) {
+      this.editTaskCopy.assignedBy = this.currentUser.uid;
+      this.editTaskCopy.assignedByName = this.currentUser.username;
+    }
+  }
+
   const updated = {
     ...this.editTaskCopy,
     updatedAt: new Date()
@@ -212,19 +225,17 @@ saveTask() {
   this.taskService.updateTask(this.editingTaskId!, updated)
     .then(() => {
       this.toastService.show('Task updated successfully', 'success');
-
-      // update local UI
       const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
       if (index !== -1) {
-        this.tasks[index] = { ...this.tasks[index], ...updated };
+        this.tasks[index] = {
+          ...this.tasks[index],
+          ...updated
+        };
       }
-
-      // reset edit state
       this.editingTaskId = null;
       this.editTaskCopy = null;
-
     })
-    .catch((err) => {
+    .catch(() => {
       this.toastService.show('Failed to update task. Please try again.', 'error');
     });
 }
