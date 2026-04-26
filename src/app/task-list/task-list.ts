@@ -59,6 +59,8 @@ export class TaskList implements OnInit{
   editingTeamTaskId: string | null = null;
   editTeamTaskCopy: any = null;
   originalAssignedTo: string | null = null;
+  isTeamEditModalOpen: boolean = false;
+  isMyTaskEditModalOpen:boolean = false;
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -181,6 +183,7 @@ editTask(taskId: string) {
 
   this.editingTaskId = taskId;
   this.editTaskCopy = JSON.parse(JSON.stringify(task));
+  this.isMyTaskEditModalOpen=true;
 }
 
 saveTask() {
@@ -234,10 +237,17 @@ saveTask() {
       }
       this.editingTaskId = null;
       this.editTaskCopy = null;
+      this.isMyTaskEditModalOpen=false;
     })
     .catch(() => {
       this.toastService.show('Failed to update task. Please try again.', 'error');
     });
+}
+
+cancelEdit() {
+  this.editingTaskId = null;
+  this.editTaskCopy = null;
+  this.isMyTaskEditModalOpen=false;
 }
 
 logout() {
@@ -280,12 +290,6 @@ getOverdueText(task: any): string {
 
   const days = Math.floor(diffDays);
   return days === 1 ? '1 day overdue' : `${days} days overdue`;
-}
-
-
-cancelEdit() {
-  this.editingTaskId = null;
-  this.editTaskCopy = null;
 }
 
 get myTasks() {
@@ -371,6 +375,7 @@ editTeamTask(taskId: string) {
   this.editTeamTaskCopy = { ...task };
 
   this.originalAssignedTo = task.assignedTo;
+  this.isTeamEditModalOpen = true;
 }
 
 saveTeamTask() {
@@ -395,6 +400,7 @@ saveTeamTask() {
       this.editingTeamTaskId = null;
       this.editTeamTaskCopy = null;
       this.originalAssignedTo = null;
+      this.isTeamEditModalOpen = false;
     })
     .catch(() => {
       this.toastService.show('Failed to update task', 'error');
@@ -407,6 +413,7 @@ saveTeamTask() {
       this.editingTeamTaskId = null;
       this.editTeamTaskCopy = null;
       this.originalAssignedTo = null;
+      this.isTeamEditModalOpen = false;
   }
 
 }
