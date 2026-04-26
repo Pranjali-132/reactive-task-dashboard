@@ -50,10 +50,10 @@ export class TaskList implements OnInit{
   today: Date = new Date();
   // MY TASKS PAGINATION
   myCurrentPage = 1;
-  myItemsPerPage = 3;
+  myItemsPerPage = 4;
   // TEAM TASKS PAGINATION
   teamCurrentPage = 1;
-  teamItemsPerPage = 3;
+  teamItemsPerPage = 4;
   teamMembers: any[] = [];
   selectedAssigneeId: string = '';
   editingTeamTaskId: string | null = null;
@@ -61,6 +61,7 @@ export class TaskList implements OnInit{
   originalAssignedTo: string | null = null;
   isTeamEditModalOpen: boolean = false;
   isMyTaskEditModalOpen:boolean = false;
+    expandedTaskIds: Set<string> = new Set();
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -358,13 +359,23 @@ goToTeamPage(page: number) {
   this.teamCurrentPage = page;
 }
 
-formatDate(ts: any) {
-  if (!ts) return null;
+formatDate(value: any): Date | null {
+  if (!value) return null;
 
-  if (typeof ts.toDate === 'function') {
-    return ts.toDate();
+  // Firestore timestamp
+  if (value?.seconds) {
+    return new Date(value.seconds * 1000);
   }
-  return new Date(ts);
+
+  // Firestore Timestamp object
+  if (typeof value?.toDate === 'function') {
+    return value.toDate();
+  }
+
+  // String or ISO
+  const date = new Date(value);
+
+  return isNaN(date.getTime()) ? null : date;
 }
 
 editTeamTask(taskId: string) {
@@ -415,5 +426,18 @@ saveTeamTask() {
       this.originalAssignedTo = null;
       this.isTeamEditModalOpen = false;
   }
+
+  toggleExpand(taskId: string) {
+    if (this.expandedTaskIds.has(taskId)) {
+      this.expandedTaskIds.delete(taskId);
+    } else {
+      this.expandedTaskIds.add(taskId);
+    }
+  }
+
+  isExpanded(taskId: string): boolean {
+    return this.expandedTaskIds.has(taskId);
+  }
+
 
 }
