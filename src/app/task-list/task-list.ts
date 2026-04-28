@@ -4,19 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Tasks } from '../services/task';
 import { ToastService } from '../services/toast-service';
-import { TaskFilterPipe } from '../pipes/task-filter.pipe.ts-pipe';
 import { UserService } from '../services/user';
 interface Task {
   id: string;
   title: string;
   description: string;
   status: string;
-  priority:string;
-  assignedTo: string;        
-  assignedToName?: string;   
+  priority: string;
+  assignedTo: string;
+  assignedToName?: string;
+  assignedBy?: string;        
+  assignedByName?: string;   
   teamId: string;
-  createdBy: string;       
-  createdAt?: any;      
+  createdBy: string;
+  createdByName?: string;
+  dueDate?: string;          
+  createdAt?: any;
   updatedAt?: any;
 }
 
@@ -24,8 +27,7 @@ interface Task {
   selector: 'app-task-list',
   imports: [
     CommonModule,
-    FormsModule,
-    TaskFilterPipe
+    FormsModule
   ],
   templateUrl: './task-list.html',
   styleUrl: './task-list.css',
@@ -37,6 +39,7 @@ export class TaskList implements OnInit{
   searchText: string = '';
   selectedStatus: string = 'All';
   selectedPriority: string = 'All';
+  selectedUser: string = '';
   newTask = {
     title: '',
     description: '',
@@ -61,7 +64,7 @@ export class TaskList implements OnInit{
   originalAssignedTo: string | null = null;
   isTeamEditModalOpen: boolean = false;
   isMyTaskEditModalOpen:boolean = false;
-    expandedTaskIds: Set<string> = new Set();
+  expandedTaskIds: Set<string> = new Set();
 
   constructor(private router: Router, private taskService:Tasks, private toastService: ToastService, private userService: UserService){}
 
@@ -293,23 +296,36 @@ getOverdueText(task: any): string {
   return days === 1 ? '1 day overdue' : `${days} days overdue`;
 }
 
-get myTasks() {
-  return this.tasks.filter(t => t.assignedTo === this.currentUser.uid);
+get teamMembersForFilter() {
+  return this.teamMembers.filter(u => u.role !== 'admin');
 }
 
-get filteredMyTasks() {
-  return this.myTasks.filter(task => {
+//reusable filter method
+applyFilters(tasks: Task[]): Task[] {
+  return tasks.filter(task => {
+
+    const matchSearch =
+      task.title?.toLowerCase().includes(this.searchText?.toLowerCase() || '');
+
     const matchStatus =
       this.selectedStatus === 'All' || task.status === this.selectedStatus;
 
     const matchPriority =
       this.selectedPriority === 'All' || task.priority === this.selectedPriority;
 
-    const matchSearch =
-      task.title.toLowerCase().includes(this.searchText.toLowerCase());
+    const matchUser =
+      !this.selectedUser || task.assignedTo === this.selectedUser;
 
-    return matchStatus && matchPriority && matchSearch;
+    return matchSearch && matchStatus && matchPriority && matchUser;
   });
+}
+
+get myTasks() {
+  return this.tasks.filter(t => t.assignedTo === this.currentUser.uid);
+}
+
+get filteredMyTasks() {
+  return this.applyFilters(this.myTasks);
 }
 
 get myTotalPages() {
@@ -326,18 +342,7 @@ get teamTasks() {
 }
 
 get filteredTeamTasks() {
-  return this.teamTasks.filter(task => {
-    const matchStatus =
-      this.selectedStatus === 'All' || task.status === this.selectedStatus;
-
-    const matchPriority =
-      this.selectedPriority === 'All' || task.priority === this.selectedPriority;
-
-    const matchSearch =
-      task.title.toLowerCase().includes(this.searchText.toLowerCase());
-
-    return matchStatus && matchPriority && matchSearch;
-  });
+  return this.applyFilters(this.teamTasks);
 }
 
 get teamTotalPages() {
@@ -357,6 +362,11 @@ goToMyPage(page: number) {
 goToTeamPage(page: number) {
   if (page < 1 || page > this.teamTotalPages) return;
   this.teamCurrentPage = page;
+}
+
+resetPagination() {
+  this.myCurrentPage = 1;
+  this.teamCurrentPage = 1;
 }
 
 formatDate(value: any): Date | null {

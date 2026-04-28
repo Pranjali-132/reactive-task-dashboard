@@ -28,12 +28,13 @@
           class="form-control"
           placeholder="Please enter a Task Name"
           [(ngModel)]="searchText"
+          (ngModelChange)="resetPagination()"
         />
       </div>
 
       <div class="col-md-3 mb-2">
         <label>Filter by Task Status</label>
-        <select class="form-select" [(ngModel)]="selectedStatus">
+        <select class="form-select" [(ngModel)]="selectedStatus" (ngModelChange)="resetPagination()">
           <option value="All">All</option>
           <option value="Pending">Pending</option>
           <option value="In Progress">In Progress</option>
@@ -43,11 +44,23 @@
 
       <div class="col-md-3 mb-2">
         <label>Filter by Task Priority</label>
-        <select class="form-select" [(ngModel)]="selectedPriority">
+        <select class="form-select" [(ngModel)]="selectedPriority" (ngModelChange)="resetPagination()">
           <option value="All">All</option>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
+        </select>
+      </div>
+
+      <div *ngIf="isAdmin()" class="col-md-3 mb-2">
+        <label>Filter by Team memeber</label>
+
+        <select class="form-select" [(ngModel)]="selectedUser" (ngModelChange)="resetPagination()">
+          <option value="">All</option>
+
+          <option *ngFor="let user of teamMembersForFilter" [value]="user.uid">
+            {{ user.username }}
+          </option>
         </select>
       </div>
     
@@ -59,7 +72,7 @@
 
     <h4 class="mb-3"><i class="bi bi-people"></i> Team Tasks</h4>
     <div class="row g-4">
-      <ng-container *ngFor="let task of paginatedTeamTasks | taskFilter:searchText:selectedStatus:selectedPriority">
+      <ng-container *ngFor="let task of paginatedTeamTasks">
 
         <div class="col-md-3" *ngIf="!canModify(task)">
           <div class="card task-card h-100">
@@ -79,9 +92,9 @@
 
                 <span class="badge"
                   [ngClass]="{
-                    'bg-danger': task.priority?.toLowerCase() === 'high',
-                    'bg-primary': task.priority?.toLowerCase() === 'medium',
-                    'bg-secondary': task.priority?.toLowerCase() === 'low'
+                    'bg-danger': task.priority.toLowerCase() === 'high',
+                    'bg-primary': task.priority.toLowerCase() === 'medium',
+                    'bg-secondary': task.priority.toLowerCase() === 'low'
                   }">
                   {{ task.priority | uppercase }}
                 </span>
@@ -106,7 +119,7 @@
                 </div>
 
                 <div *ngIf="isExpanded(task.id)" class="border-top pt-2 mt-2 small text-muted">
-                  <div class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</div>
+                  <div class="text-muted small">Description: {{ task.description.trim() || 'No description added' }}</div>
 
                   <div class="text-muted small mt-2">
                     Assigned By: <i class="bi bi-person-check text-primary"></i>
@@ -173,7 +186,7 @@
 
   <div class="row g-4">
 
-    <ng-container *ngFor="let task of paginatedMyTasks | taskFilter:searchText:selectedStatus:selectedPriority">
+    <ng-container *ngFor="let task of paginatedMyTasks">
       <div class="col-md-3" *ngIf="canModify(task)">
         <div class="card task-card my-task h-100">
 
@@ -191,9 +204,9 @@
 
                 <span class="badge"
                   [ngClass]="{
-                    'bg-danger': task.priority?.toLowerCase() === 'high',
-                    'bg-primary': task.priority?.toLowerCase() === 'medium',
-                    'bg-secondary': task.priority?.toLowerCase() === 'low'
+                    'bg-danger': task.priority.toLowerCase() === 'high',
+                    'bg-primary': task.priority.toLowerCase() === 'medium',
+                    'bg-secondary': task.priority.toLowerCase() === 'low'
                   }">
                   {{ task.priority | uppercase }}
                 </span>
@@ -214,7 +227,7 @@
                 </div>
 
                 <div *ngIf="isExpanded(task.id)" class="border-top pt-2 mt-2 small text-muted">
-                  <div class="text-muted small">Description: {{ task.description?.trim() || 'No description added' }}</div>
+                  <div class="text-muted small">Description: {{ task.description.trim() || 'No description added' }}</div>
 
                   <div class="text-muted small mt-2" *ngIf="!isAdmin()">
                     Assigned By: <i class="bi bi-person-check text-primary"></i>
