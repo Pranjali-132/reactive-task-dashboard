@@ -1,73 +1,68 @@
-# TaskNova
+## TaskNova
 
 A role-based task management web application built using Angular and Firebase, designed to help teams manage tasks efficiently with separate dashboards for Admin and Employee users.
 
-## 🚀 Live Demo
+## Live Demo
 
-👉 https://taskdashboard-13.web.app
+ https://taskdashboard-13.web.app
 
-## 📌 Project Overview
+## 📌Project Overview
 
-TaskNova is a single-page application that demonstrates role-based access control (RBAC) using Angular and Firebase.
-The application now uses **Firebase Email/Password Authentication** along with Firestore-based user profiles. It enables secure login, team-based task management, and controlled access based on user roles.
+TaskNova is a single-page application that demonstrates Role-Based Access Control (RBAC) using Angular and Firebase. The application uses Firebase Email/Password Authentication along with Firestore-based user profiles to provide secure authentication, team-based task management, and controlled access based on user roles.
 
-## 🎯 Key Features
+The project is designed to simulate real-world task management workflows where admins can manage team tasks while employees can track and update their own assigned work.
 
-### 🔐 Authentication System
+## ✨Features
 
-* Firebase Email/Password authentication
+# 🔐Authentication & User Management
+
+* Firebase Email/Password Authentication
 * Secure user registration and login
-* Firestore user profile linked with Firebase Auth UID
 * Persistent login sessions
-* Unique username support (validated during registration)
+* Unique username validation
+* Firestore user profiles linked with Firebase Auth UID
 
 
-### 👥 Role-Based Access Control (RBAC)
+# 👥Role-Based Access Control (RBAC)
 
-* Default role: **Employee**
-* Admin dashboard for team-level task visibility
-* Employee dashboard for personal task management
-* Role-based UI rendering and access control
+Default role: **Employee**
+* Employee dashboard for viewing personal tasks assigned by both admin and self-assigned
+* Search task by name and filter by Status and priority
+* Update all task details and delete any particular task assigned
+* create new task for self
 
-### 📝 Task Management
+Assigned role: **Admin**
+* Admin dashboard for team-level task visibility and self task visibility
+* Create, edit and reassign tasks
+* Filter tasks by employee, status and priority
+* Create new task for team and self.
 
-* Create, edit, and delete tasks
-* Task ownership enforcement
-* Admin can view team tasks (excluding their own)
-* Employee sees only assigned tasks
-* Task fields include:
+# 📝Task Management
 
-  * Title, Description
-  * Status (Pending / In Progress / Completed)
-  * Priority (Low / Medium / High)
-  * Due Date
-  * Assigned User
-  * Created At / Updated At timestamps
+* Create, edit, and delete tasks, Popup-based task editing
+* Task reassignment support
+* Automatic createdAt and updatedAt tracking
+* Task Fields
+
+Title
+Description
+Status
+Priority
+Due Date
+Overdue
+Assigned User
+Assigned By
+Created At / Updated At
 
 
-### 🔍 Filtering & Pagination
+# 🎨UI & UX Enhancements
+Responsive design for desktop and mobile devices
+Compact task cards with expandable details
+Cleaner dashboard layout
+Improved mobile login experience
+Bootstrap + custom modern styling
 
-* Search by task title
-* Filter by status and priority
-* Separate pagination for:
-
-  * My Tasks
-  * Team Tasks (Admin)
-* Proper flow: **Filter → Paginate → Render**
-
-### 👥 Team Management
-
-* Users can select or create teams during registration
-* Tasks are scoped by `teamId`
-* Admins operate within their team context
-
-### 🧭 Navigation & Session Handling
-
-* Session stored in localStorage
-* Auto-redirect if already logged in
-* Logout clears session and redirects to login
-
-## 🏗️ Tech Stack
+## 🏗️Tech Stack
 
 * **Frontend:** Angular
 * **Backend:** Firebase Firestore
@@ -75,7 +70,7 @@ The application now uses **Firebase Email/Password Authentication** along with F
 * **Hosting:** Firebase Hosting
 * **Styling:** Bootstrap + Custom CSS
 
-## 📁 Project Architecture
+## 📁Project Architecture
 
 App
  ├── Components
@@ -97,7 +92,7 @@ App
 
 ## 🔄 Application Flow
 
-1. User registers using email & password
+1. User registers using name, username, email, password and Team(old teams population in dropdown and new team created if not existing)
 2. Firebase Auth creates account and returns UID
 3. Firestore user profile is created using UID
 4. User logs in using email/password
@@ -107,7 +102,8 @@ App
    * Role (Admin / Employee)
    * Ownership (`assignedTo`)
    * Team (`teamId`)
-7. UI updates dynamically based on permissions
+7. By default the role assigned at the time of registration is Employee, which can be changed later from firebase to admin
+8. UI updates dynamically based on permissions
 
 ## 🔐 Security Model
 
@@ -122,16 +118,14 @@ App
 * Role is **not user-selectable** during registration (defaults to Employee)
 * Username is required and must be unique
 * Admin role must be assigned manually (via Firestore if needed)
-* Pagination and filtering are handled separately for accuracy
 
 ## 📈 Future Improvements
 
 * Firestore security rules (server-side enforcement)
-* Admin user management panel
-* Real-time updates with listeners
-* Task assignment to multiple users
 * Activity logs / audit trail
 * UI/UX enhancements
+* Notifications and reminders
+* Dark mode support
 
 ## 👨‍💻 Author
 
